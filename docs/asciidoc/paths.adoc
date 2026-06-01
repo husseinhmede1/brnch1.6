@@ -1,0 +1,2262 @@
+== Paths
+=== Get all Accounting Template Details by Accounting Template Header Sub Id
+----
+GET /accounting-details/accountingHdrSub/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AccountingTemplateDetailsResponseDto>>
+|===
+
+==== Tags
+
+* Accounting Template Details Controller
+
+=== Save Accounting Template Header - Details
+----
+POST /accounting-template
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<AccountingTemplateHDRRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AccountingTemplateHDRResponseDto>>
+|===
+
+==== Tags
+
+* Accounting Template Header Controller
+
+=== Save Accounting Template Sub Header
+----
+POST /accounting-template-sub
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<AccountingTemplateHDRSubRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AccountingTemplateHDRSubResponseDto>>
+|===
+
+==== Tags
+
+* Accounting Template Sub Header Controller
+
+=== Get all Accounting Template Sub Headers by Accounting Template Header Id
+----
+GET /accounting-template-sub/header/{acctTemplateHdrId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|acctTemplateHdrId||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AccountingTemplateHDRSubResponseDto>>
+|===
+
+==== Tags
+
+* Accounting Template Sub Header Controller
+
+=== Get Accounting Template Sub Header by Id
+----
+GET /accounting-template-sub/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AccountingTemplateHDRSubResponseDto>>
+|===
+
+==== Tags
+
+* Accounting Template Sub Header Controller
+
+=== Delete Accounting Template Sub Header
+----
+DELETE /accounting-template-sub/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|default|successful operation|No Content
+|===
+
+==== Tags
+
+* Accounting Template Sub Header Controller
+
+=== Map Accounting Template to Entity
+----
+POST /accounting-template/assignment
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<AccountingTemplateHdrEntityMappingRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AccountingTemplateHdrEntityMappingRequestDto>>
+|===
+
+==== Tags
+
+* Accounting Template Header Controller
+
+=== Get all Accounting Template Headers by Institution
+----
+GET /accounting-template/inst/{instId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|instId||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AccountingTemplateHDRResponseDto>>
+|===
+
+==== Tags
+
+* Accounting Template Header Controller
+
+=== Get Mapped Entities by Accounting Template Id
+----
+GET /accounting-template/mapped-entities/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<EntitiesResponseDto>>
+|===
+
+==== Tags
+
+* Accounting Template Header Controller
+
+=== Get Accounting Template Header by Id
+----
+GET /accounting-template/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AccountingTemplateHDRResponseDto>>
+|===
+
+==== Tags
+
+* Accounting Template Header Controller
+
+=== Delete Accounting Template Header - Details
+----
+DELETE /accounting-template/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|default|successful operation|No Content
+|===
+
+==== Tags
+
+* Accounting Template Header Controller
+
+=== Save Acquiring Transactions
+----
+POST /acquiringtransaction
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<AcquiringTransactionRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AcquiringTransactionResponseDto>>
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Apply Accounting Adjustment
+----
+POST /acquiringtransaction/account-adjustment
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<AcquiringTransactionAdjustmentRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<TransactionCurrentSearchResponseDto>>
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Search Acquiring Transactions
+----
+POST /acquiringtransaction/all
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<AcquiringTransactionRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<PaginationResponseDto>>
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Get Acquiring Transactions by Entity Id
+----
+GET /acquiringtransaction/entities/{entitiesid}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|entitiesid||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AcquiringTransactionResponseDto>>
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== View Acquiring Transaction
+----
+POST /acquiringtransaction/getAcquiringTransactions
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<AcquiringTransactionRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<PaginationResponseDto>>
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Save Halt Pay Transaction
+----
+POST /acquiringtransaction/haltpaytransaction
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<AcquiringTransactionRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AcquiringTransactionResponseDto>>
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Get Acquiring Transactions by Institution Id
+----
+POST /acquiringtransaction/institution/{institutionid}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|||true|string|
+|BodyParameter|body||false|<<AcquiringTransactionRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<PaginationResponseDto>>
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Save Representment
+----
+POST /acquiringtransaction/representment
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<AcquiringTransactionRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AcquiringTransactionResponseDto>>
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Get Acquiring Transaction by Reversal
+----
+GET /acquiringtransaction/reversal/{acquiringTransactionId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|acquiringTransactionId||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|boolean
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Save Reversal Transaction
+----
+POST /acquiringtransaction/reversalTransaction
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<AcquiringTransactionRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AcquiringTransactionResponseDto>>
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Search Acquiring Transactions
+----
+POST /acquiringtransaction/search
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<AcquiringTransactionRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<PaginationResponseDto>>
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Unhalt transaction
+----
+POST /acquiringtransaction/unhaltTransaction
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<UnhaltRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AcquiringTransactionResponseDto>>
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Get Acquiring Transaction by Id
+----
+GET /acquiringtransaction/{acquiringTransactionId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|acquiringTransactionId||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AcquiringTransactionResponseDto>>
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Delete Acquiring Transaction
+----
+DELETE /acquiringtransaction/{acquiringTransactionId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|acquiringTransactionId||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|string
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Get Acquiring Transactions by Entity Id and Institution Id
+----
+POST /acquiringtransaction/{entitiesid}/{institutionid}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|||true|string|
+|PathParameter|||true|string|
+|BodyParameter|body||false|<<AcquiringTransactionRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<PaginationResponseDto>>
+|===
+
+==== Tags
+
+* Acquiring Transactions Controller
+
+=== Get All Activities
+----
+GET /activity
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityResponseDto>>
+|===
+
+==== Tags
+
+* Activity Controller
+
+=== Get Activity Api by Activity Id
+----
+GET /activity/activity/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityApiResponseDto>>
+|===
+
+==== Tags
+
+* Activity Controller
+
+=== Get Activity by Id
+----
+GET /activity/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityResponseDto>>
+|===
+
+==== Tags
+
+* Activity Controller
+
+=== Save Activity Fee Package
+----
+POST /activityfeepackage
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<ActivityPackageRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityPackageResponseDto>>
+|===
+
+==== Tags
+
+* Activity fee Package Controller
+
+=== Get all Activity Fee Packages
+----
+GET /activityfeepackage
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityPackageResponseDto>>
+|===
+
+==== Tags
+
+* Activity fee Package Controller
+
+=== Get all Active Activity Fee Packages by Institution Id
+----
+GET /activityfeepackage/active-activitypackage/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityPackageResponseDto>>
+|===
+
+==== Tags
+
+* Activity fee Package Controller
+
+=== Map Entity to Activity Package
+----
+POST /activityfeepackage/assignment
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<ActivityEntityMappingRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityEntityMappingRequestDto>>
+|===
+
+==== Tags
+
+* Activity fee Package Controller
+
+=== Get all Activity Fee Packages by Institution Id
+----
+GET /activityfeepackage/institution/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityPackageResponseDto>>
+|===
+
+==== Tags
+
+* Activity fee Package Controller
+
+=== Get Mapped Entities by Activity Package Id
+----
+GET /activityfeepackage/mapped-entities/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<EntitiesResponseDto>>
+|===
+
+==== Tags
+
+* Activity fee Package Controller
+
+=== Change Activity Fee Package Status
+----
+POST /activityfeepackage/status-change
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<ChangeStatusRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|string
+|===
+
+==== Tags
+
+* Activity fee Package Controller
+
+=== Get Activity Fee Package by Id
+----
+GET /activityfeepackage/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityPackageResponseDto>>
+|===
+
+==== Tags
+
+* Activity fee Package Controller
+
+=== Delete Activity Fee Package
+----
+DELETE /activityfeepackage/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|string
+|===
+
+==== Tags
+
+* Activity fee Package Controller
+
+=== Save Activity Fee Package Tier
+----
+POST /activityfeepackagechargedetail
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<ActivityPackageTierRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityPackageTierResponseDto>>
+|===
+
+==== Tags
+
+* Activity fee Package Charge Detail Controller
+
+=== Get all Activity Fee Package Tiers
+----
+GET /activityfeepackagechargedetail/packagedetail/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityPackageTierResponseDto>>
+|===
+
+==== Tags
+
+* Activity fee Package Charge Detail Controller
+
+=== Get Activity Fee Package Tier by Id
+----
+GET /activityfeepackagechargedetail/packagetier/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityPackageTierResponseDto>>
+|===
+
+==== Tags
+
+* Activity fee Package Charge Detail Controller
+
+=== Delete Activity Fee Package Tier
+----
+DELETE /activityfeepackagechargedetail/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|string
+|===
+
+==== Tags
+
+* Activity fee Package Charge Detail Controller
+
+=== Save Activity Fee Package
+----
+POST /activityfeepackagedefination
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<ActivityPackageDetailRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityPackageDetailResponseDto>>
+|===
+
+==== Tags
+
+* Activity fee Package Defination Controller
+
+=== Get all Activity Fee Packages
+----
+GET /activityfeepackagedefination/activitypackage/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityPackageDetailResponseDto>>
+|===
+
+==== Tags
+
+* Activity fee Package Defination Controller
+
+=== Get Activity Fee Package by Id
+----
+GET /activityfeepackagedefination/packagedetailid/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ActivityPackageDetailResponseDto>>
+|===
+
+==== Tags
+
+* Activity fee Package Defination Controller
+
+=== Change Activity Fee Package Status
+----
+POST /activityfeepackagedefination/status-change
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<ChangeStatusRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|default|successful operation|No Content
+|===
+
+==== Tags
+
+* Activity fee Package Defination Controller
+
+=== Delete Activity Fee Package
+----
+DELETE /activityfeepackagedefination/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|string
+|===
+
+==== Tags
+
+* Activity fee Package Defination Controller
+
+=== Save Address
+----
+POST /address
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<AddressRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AddressResponseDto>>
+|===
+
+==== Tags
+
+* Address Controller
+
+=== Get all Addresses
+----
+GET /address
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AddressResponseDto>>
+|===
+
+==== Tags
+
+* Address Controller
+
+=== Get all Countries
+----
+GET /address/countries
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<CountryResponseDto>>
+|===
+
+==== Tags
+
+* Address Controller
+
+=== Get City by Country Id
+----
+GET /address/country/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<CityResponseDto>>
+|===
+
+==== Tags
+
+* Address Controller
+
+=== Get Address by Entity Id
+----
+GET /address/entities/{entityId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|entityId||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<AddressResponseDto>>
+|===
+
+==== Tags
+
+* Address Controller
+
+=== Delete Address
+----
+DELETE /address/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|string
+|===
+
+==== Tags
+
+* Address Controller
+
+=== Save Bank File output
+----
+POST /bank-files
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<BankFilesOutputRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BankFilesOutputResponseDto>>
+|===
+
+==== Tags
+
+* Bank Files Output Controller
+
+=== Map Bank File output to Bank
+----
+POST /bank-files/assign
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<OutputFileTemplateBankCodeMappingRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BankFilesOutputResponseDto>>
+|===
+
+==== Tags
+
+* Bank Files Output Controller
+
+=== Get all distinct Bank File output bank codes by Institution
+----
+GET /bank-files/distinct/bank-code/inst/{instId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|instId||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BankFilesOutputResponseDto>>
+|===
+
+==== Tags
+
+* Bank Files Output Controller
+
+=== Get all distinct Bank File output by Institution
+----
+GET /bank-files/distinct/inst/{instId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|instId||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BankFilesOutputResponseDto>>
+|===
+
+==== Tags
+
+* Bank Files Output Controller
+
+=== Get all Bank File output by Institution
+----
+GET /bank-files/inst/{instId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|instId||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BankFilesOutputResponseDto>>
+|===
+
+==== Tags
+
+* Bank Files Output Controller
+
+=== Get all mapped Bank File output by output template header id
+----
+GET /bank-files/map/{outputTemplateHdrId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|outputTemplateHdrId||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BankFilesOutputResponseDto>>
+|===
+
+==== Tags
+
+* Bank Files Output Controller
+
+=== Get all Bank File output by Institution and Output File Type
+----
+GET /bank-files/output-file-type/inst/{instId}/{outputFileType}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|instId||true|string|
+|PathParameter|outputFileType||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|string
+|===
+
+==== Tags
+
+* Bank Files Output Controller
+
+=== Unmap Bank File output to Bank
+----
+DELETE /bank-files/unassign
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<OutputFileTemplateBankCodeMappingRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BankFilesOutputResponseDto>>
+|===
+
+==== Tags
+
+* Bank Files Output Controller
+
+=== Save Bank Code
+----
+POST /bankcode
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<BankCodeRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BankCodeResponseDto>>
+|===
+
+==== Tags
+
+* Bank Code Controller
+
+=== Get Bank Code by Institution
+----
+GET /bankcode/institution/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BankCodeResponseDto>>
+|===
+
+==== Tags
+
+* Bank Code Controller
+
+=== Get Bank Code by Id
+----
+GET /bankcode/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BankCodeResponseDto>>
+|===
+
+==== Tags
+
+* Bank Code Controller
+
+=== Delete Bank Code
+----
+DELETE /bankcode/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|string
+|===
+
+==== Tags
+
+* Bank Code Controller
+
+=== Save Business Type
+----
+POST /businesstype
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<BusinessType>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BusinessTypeResponseDto>>
+|===
+
+==== Tags
+
+* Business Type Controller
+
+=== Get all Business Types
+----
+GET /businesstype
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BusinessTypeResponseDto>>
+|===
+
+==== Tags
+
+* Business Type Controller
+
+=== Save Card Scheme
+----
+POST /cardscheme
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<CardSchemeRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<CardSchemeResponseDto>>
+|===
+
+==== Tags
+
+* Card Scheme Controller
+
+=== Get all Card Schemes
+----
+GET /cardscheme
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<CardSchemeResponseDto>>
+|===
+
+==== Tags
+
+* Card Scheme Controller
+
+=== Get All Active Card Schemes
+----
+GET /cardscheme/active-cardscheme
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<CardSchemeResponseDto>>
+|===
+
+==== Tags
+
+* Card Scheme Controller
+
+=== Change Card Scheme Status
+----
+POST /cardscheme/status-change
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<ChangeStatusRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|string
+|===
+
+==== Tags
+
+* Card Scheme Controller
+
+=== Get Card Scheme by Id
+----
+GET /cardscheme/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<CardSchemeResponseDto>>
+|===
+
+==== Tags
+
+* Card Scheme Controller
+
+=== Delete Card Scheme
+----
+DELETE /cardscheme/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|string
+|===
+
+==== Tags
+
+* Card Scheme Controller
+
+=== Save Role
+----
+POST /chargeMethod
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<ChargeMethod>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ChargeMethod>>
+|===
+
+==== Tags
+
+* Charge MethodControllerr Controller
+
+=== Get all Roles
+----
+GET /chargeMethod
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ChargeMethod>>
+|===
+
+==== Tags
+
+* Charge MethodControllerr Controller
+
+=== Get all Bkd Services
+----
+GET /config/bkd-service
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BkdServiceResponseDto>>
+|===
+
+==== Tags
+
+* Bkd Service Controller
+
+=== Update Bkd Services' batch size
+----
+POST /config/bkd-service/batch-size
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<BkdServiceRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<BkdServiceResponseDto>>
+|===
+
+==== Tags
+
+* Bkd Service Controller
+
+=== Get Parameter Name by Parameter Service ID
+----
+GET /config/bkd-service/parameter/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|string
+|===
+
+==== Tags
+
+* Bkd Service Controller
+
+=== Get all Logs by Job ID
+----
+POST /config/job-execution-logs/job
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<JobExecutionLogRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<PageableJobExecutionLogResponseDto>>
+|===
+
+==== Tags
+
+* Job Execution Log
+
+=== Get all Job Tasks
+----
+GET /config/job-tasks
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<JobTaskResponseDto>>
+|===
+
+==== Tags
+
+* Job Task Controller
+
+=== Get Job Task by ID
+----
+GET /config/job-tasks/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<JobTaskResponseDto>>
+|===
+
+==== Tags
+
+* Job Task Controller
+
+=== Save Job
+----
+POST /config/jobs
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<JobRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<JobResponseDto>>
+|===
+
+==== Tags
+
+* Job Controller
+
+=== Get all Jobs
+----
+GET /config/jobs
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<JobResponseDto>>
+|===
+
+==== Tags
+
+* Job Controller
+
+=== Get all Active Jobs
+----
+GET /config/jobs/active
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<JobResponseDto>>
+|===
+
+==== Tags
+
+* Job Controller
+
+=== Get Job execution status by ID
+----
+GET /config/jobs/execution-status/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|string
+|===
+
+==== Tags
+
+* Job Controller
+
+=== Job Monitoring 
+----
+GET /config/jobs/job-monitoring
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<JobScheduledMonitoringResponseDto>>
+|===
+
+==== Tags
+
+* Job Controller
+
+=== Schedule Job
+----
+POST /config/jobs/schedule
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<ScheduleJobRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<JobResponseDto>>
+|===
+
+==== Tags
+
+* Job Controller
+
+=== Start Job Execution
+----
+POST /config/jobs/start/{jobId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|jobId||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|default|successful operation|No Content
+|===
+
+==== Tags
+
+* Job Controller
+
+=== Enable/Disable Job
+----
+POST /config/jobs/status-change
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<ChangeStatusRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|default|successful operation|No Content
+|===
+
+==== Tags
+
+* Job Controller
+
+=== Stop Job Execution
+----
+POST /config/jobs/stop/{jobId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|jobId||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|default|successful operation|No Content
+|===
+
+==== Tags
+
+* Job Controller
+
+=== Get Job by ID
+----
+GET /config/jobs/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<JobResponseDto>>
+|===
+
+==== Tags
+
+* Job Controller
+
+=== Delete Job
+----
+DELETE /config/jobs/{id}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|id||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|default|successful operation|No Content
+|===
+
+==== Tags
+
+* Job Controller
+
+=== Get All Files
+----
+GET /v1/config/input-output
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<FileResponseDto>> array
+|===
+
+==== Tags
+
+* File Controller
+
+=== Get all Active Files
+----
+GET /v1/config/input-output/active
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<FileResponseDto>> array
+|===
+
+==== Tags
+
+* File Controller
+
+=== Get All elements by File ID
+----
+GET /v1/config/input-output/{fileId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|fileId||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<ListFileElementResponseDto>>
+|===
+
+==== Tags
+
+* File Controller
+
+=== Save Layout
+----
+POST /v1/input-output/layouts
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<LayoutRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<LayoutResponseDto>>
+|===
+
+==== Tags
+
+* Layout Controller
+
+=== Get All active Layouts
+----
+GET /v1/input-output/layouts/active
+----
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<LayoutResponseDto>>
+|===
+
+==== Tags
+
+* Layout Controller
+
+=== Get all Layouts
+----
+POST /v1/input-output/layouts/all
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<PaginationRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<PageableLayoutResponseDto>>
+|===
+
+==== Tags
+
+* Layout Controller
+
+=== Get Layouts by File ID
+----
+GET /v1/input-output/layouts/file-type/{fileType}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|fileType||true|string|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<LayoutResponseDto>>
+|===
+
+==== Tags
+
+* Layout Controller
+
+=== Get Layouts by File ID
+----
+GET /v1/input-output/layouts/file/{fileId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|fileId||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<LayoutResponseDto>>
+|===
+
+==== Tags
+
+* Layout Controller
+
+=== Change Layout Status
+----
+POST /v1/input-output/layouts/status-change
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|BodyParameter|body||false|<<ChangeStatusRequestDto>>|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|default|successful operation|No Content
+|===
+
+==== Tags
+
+* Layout Controller
+
+=== Get Layout by ID
+----
+GET /v1/input-output/layouts/{layoutId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|layoutId||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|200|successful operation|<<LayoutResponseDto>>
+|===
+
+==== Tags
+
+* Layout Controller
+
+=== Delete Layout
+----
+DELETE /v1/input-output/layouts/{layoutId}
+----
+
+==== Parameters
+[options="header"]
+|===
+|Type|Name|Description|Required|Schema|Default
+|PathParameter|layoutId||true|integer (int32)|
+|===
+
+==== Responses
+[options="header"]
+|===
+|HTTP Code|Description|Schema
+|default|successful operation|No Content
+|===
+
+==== Tags
+
+* Layout Controller
+

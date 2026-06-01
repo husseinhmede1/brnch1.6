@@ -1,0 +1,36 @@
+= MAS Prime Swagger APIs Catalogue
+
+== Overview
+Expert Card Management System APIs Catalogue
+
+=== Version information
+Version: v1.0
+
+=== Tags
+
+* Accounting Ledger Controller
+* Accounting Template Details Controller
+* Accounting Template Header Controller
+* Accounting Template Sub Header Controller
+* Acquiring Transactions Controller
+* Activity Controller
+* Activity fee Package Charge Detail Controller
+* Activity fee Package Controller
+* Activity fee Package Defination Controller
+* Address Controller
+* Bank Code Controller
+* Bank Files Output Controller
+* Bkd Service Controller
+* Business Type Controller
+* Card Scheme Controller
+* Charge MethodControllerr Controller
+* File Controller
+* Institution Controller: REST Apis related to Institution Entity!!!!
+* Issuer Controller: REST Apis related to Issuer and IssuerRelation Entity!!!!
+* Job Controller
+* Job Execution Log
+* Job Task Controller
+* Layout Controller
+* Role Master Controller: REST Apis related to Role Master Entity!!!!
+
+

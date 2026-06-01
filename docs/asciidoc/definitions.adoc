@@ -1,0 +1,1189 @@
+== Definitions
+=== AccountingTemplateDetailsResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|acctTemplateDtlId||false|integer (int32)|
+|institutionId||false|string|
+|acctTemplateHdrSubId||false|integer (int32)|
+|transId||false|string|
+|accountOrigin||false|string|
+|destinationInstitution||false|string|
+|destinationInstitutionName||false|string|
+|accountType||false|string|
+|amountType||false|string|
+|percentageApplied||false|number (double)|
+|percentSrc||false|string|
+|signFlag||false|string|
+|lineDescription||false|string|
+|show||false|integer (int32)|
+|===
+
+=== AccountingTemplateHDRRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|acctTemplateHdrId||true|integer (int32)|
+|institutionId||true|string|
+|accountTemplate||true|string|
+|templateDescription||true|string|
+|===
+
+=== AccountingTemplateHDRResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|acctTemplateHdrId||false|integer (int32)|
+|institutionId||false|string|
+|accountTemplate||false|string|
+|templateDescription||false|string|
+|===
+
+=== AccountingTemplateHDRSubRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|acctTemplateHdrSubId||true|integer (int32)|
+|acctTemplateHdrId||true|integer (int32)|
+|institutionId||true|string|
+|bankCode||true|string|
+|tenplateDescription||true|string|
+|===
+
+=== AccountingTemplateHDRSubResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|acctTemplateHdrSubId||false|integer (int32)|
+|acctTemplateHdrId||false|integer (int32)|
+|institutionId||false|string|
+|bankCode||false|string|
+|tenplateDescription||false|string|
+|===
+
+=== AccountingTemplateHdrEntityMappingRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|id||false|integer (int32)|
+|previouslyAssigned||false|boolean|
+|entities||false|string array|
+|===
+
+=== AcquiringTransactionAdjustmentRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|transactions||false|integer (int32) array|
+|hold||false|boolean|
+|===
+
+=== AcquiringTransactionRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|acquiringTransactionId||false|integer (int32)|
+|acquiringTransactionIds||false|integer (int32) array|
+|institutionId||false|string|
+|transactionCurrencyId||false|integer (int32)|
+|entitiesId||false|string|
+|entityName||false|string|
+|terminalId||false|string|
+|batchId||false|string|
+|authorizationNumber||false|string|
+|manualEntry||false|string|
+|processingDate||false|string (date-time)|
+|cardNumber||false|string|
+|merchantName||false|string|
+|transactionId||false|string|
+|transactionDate||false|string (date-time)|
+|transactionAmount||false|number (float)|
+|authorizationCode||false|string|
+|settlementAmount||false|number (float)|
+|microfilmRefNbr||false|string|
+|refNumberSequence||false|integer (int32)|
+|pan||false|string|
+|cardSchemeId||false|string|
+|linkupCode||false|string|
+|processingCode||false|integer (int32)|
+|reversal||false|string|
+|billingAmount||false|number (float)|
+|billingCurrencyId||false|integer (int32)|
+|localAmount||false|number (float)|
+|localCurrencyId||false|integer (int32)|
+|tipsAmount||false|number (float)|
+|tipsCurrencyId||false|integer (int32)|
+|dccAmount||false|number (float)|
+|dccCurrencyId||false|integer (int32)|
+|dccMerchantAmount||false|number (float)|
+|dccMerchantSettlAmount||false|number (float)|
+|dccMerchantSettlAmountCurrencyId||false|integer (int32)|
+|merchantCommisionNumber||false|number (float)|
+|merchantMarkUpNumber||false|number (float)|
+|chMarkUpNumber||false|number (float)|
+|feeAmount1||false|number (float)|
+|feeAmount1CurrencyId||false|integer (int32)|
+|feeAmount2||false|number (float)|
+|feeAmount2CurrencyId||false|integer (int32)|
+|transactionTime||false|string (date-time)|
+|maskPan||false|string|
+|billingProcessingFlag||false|string|
+|settlProcessingFlag||false|string|
+|settlProcessingNbr||false|integer (int32)|
+|settlMerchHalt||false|string|
+|merchantCountry||false|string|
+|acquirerId||false|string|
+|issuerId||false|integer (int32)|
+|issuerRefNum||false|string|
+|outletCode||false|string|
+|merchantAccountNumber||false|string|
+|merchantAccountCurrId||false|integer (int32)|
+|merchantCategory||false|string|
+|terminalLocation||false|string|
+|acquirerData||false|string|
+|issuerData||false|string|
+|terminalData||false|string|
+|originNetwork||false|string|
+|destinationNetwork||false|string|
+|merchantSettlDate||false|string (date-time)|
+|settlementCurrencyId||false|integer (int32)|
+|reversalReason||false|string|
+|reversalComment||false|string|
+|manualComment||false|string|
+|chergebackReason||false|string|
+|chargebackComment||false|string|
+|payHaltComment||false|string|
+|accquierRecordToAppear||false|string|
+|issueRecordToAppear||false|string|
+|processingRefNbr1||false|string|
+|processingRefNbr2||false|string|
+|processingRefNbr3||false|string|
+|processingRefNbr4||false|string|
+|processingRefNbr5||false|string|
+|representmentReason||false|string|
+|representmentComment||false|string|
+|toBePaidToMerchant||false|string|
+|usageCode||false|integer (int32)|
+|payHaltStatus||false|string|
+|confirmStoppingPayment||false|string|
+|sort||false|<<SortDTO>> array|
+|sortOrder||false|string|
+|pageNo||false|integer (int32)|
+|pageSize||false|integer (int32)|
+|systemCodeId||false|integer (int32)|
+|merchantBank||false|string|
+|merchantIban||false|string|
+|fromProcessingDate||false|string (date-time)|
+|toProcessingDate||false|string (date-time)|
+|ecommerceFlag||false|string|
+|===
+
+=== AcquiringTransactionResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|acquiringTransactionId||false|integer (int32)|
+|institutionId||false|string|
+|institutionName||false|string|
+|transactionCurrencyId||false|integer (int32)|
+|transactionCurrencyCode||false|string|
+|transactionCurrencyName||false|string|
+|entitiesId||false|string|
+|entityName||false|string|
+|terminalId||false|integer (int32)|
+|manualEntry||false|string|
+|processingDate||false|string|
+|cardNumber||false|string|
+|merchantName||false|string|
+|transactionId||false|string|
+|transactionDescription||false|string|
+|transactionDate||false|string|
+|transactionAmount||false|number (float)|
+|authorizationCode||false|string|
+|settlementAmount||false|number (float)|
+|microfilmRefNbr||false|string|
+|refNumberSequence||false|integer (int32)|
+|pan||false|string|
+|cardSchemeId||false|string|
+|cardSchemeName||false|string|
+|linkupCode||false|string|
+|processingCode||false|integer (int32)|
+|reversal||false|string|
+|billingAmount||false|number (float)|
+|billingCurrencyId||false|integer (int32)|
+|billingCurrencyCode||false|string|
+|billingCurrencyName||false|string|
+|localAmount||false|number (float)|
+|localCurrencyId||false|integer (int32)|
+|localCurrencyCode||false|string|
+|localCurrencyName||false|string|
+|tipsAmount||false|number (float)|
+|tipsCurrencyId||false|integer (int32)|
+|tipsCurrencyCode||false|string|
+|tipsCurrencyName||false|string|
+|dccAmount||false|number (float)|
+|dccCurrencyId||false|integer (int32)|
+|dccCurrencyCode||false|string|
+|dccCurrencyName||false|string|
+|dccMerchantAmount||false|number (float)|
+|dccMerchantSettlAmount||false|number (float)|
+|dccMerchantSettlAmountCurrencyId||false|integer (int32)|
+|dccMerchantSettlAmountCurrencyCode||false|string|
+|dccMerchantSettlAmountCurrencyName||false|string|
+|merchantCommisionNumber||false|number (float)|
+|merchantMarkUpNumber||false|number (float)|
+|chMarkUpNumber||false|number (float)|
+|feeAmount1||false|number (float)|
+|feeAmount1CurrencyId||false|integer (int32)|
+|feeAmount1CurrencyCode||false|string|
+|feeAmount1CurrencyName||false|string|
+|feeAmount2||false|number (float)|
+|feeAmount2CurrencyId||false|integer (int32)|
+|feeAmount2CurrencyCode||false|string|
+|feeAmount2CurrencyName||false|string|
+|transactionTime||false|string|
+|maskPan||false|string|
+|billingProcessingFlag||false|string|
+|settlProcessingFlag||false|string|
+|settlProcessingNbr||false|integer (int32)|
+|settlMerchHalt||false|string|
+|merchantCountry||false|string|
+|acquirerId||false|string|
+|issuerId||false|string|
+|issuerRefNum||false|string|
+|outletCode||false|string|
+|merchantAccountNumber||false|string|
+|merchantAccountCurrId||false|integer (int32)|
+|merchantAccountCurrCode||false|string|
+|merchantAccountCurrName||false|string|
+|merchantCategory||false|string|
+|terminalLocation||false|string|
+|acquirerData||false|string|
+|issuerData||false|string|
+|terminalData||false|string|
+|originNetwork||false|string|
+|destinationNetwork||false|string|
+|merchantSettlDate||false|string|
+|merchantPaymentDate||false|string|
+|settlementCurrencyId||false|integer (int32)|
+|settlementCurrencyCode||false|string|
+|settlementCurrencyName||false|string|
+|reversalReason||false|string|
+|reversalComment||false|string|
+|manualComment||false|string|
+|chergebackReason||false|string|
+|chargebackComment||false|string|
+|payHaltComment||false|string|
+|accquierRecordToAppear||false|string|
+|issueRecordToAppear||false|string|
+|processingRefNbr1||false|string|
+|processingRefNbr2||false|string|
+|processingRefNbr3||false|string|
+|processingRefNbr4||false|string|
+|processingRefNbr5||false|string|
+|representmentReason||false|string|
+|representmentComment||false|string|
+|toBePaidToMerchant||false|string|
+|usageCode||false|integer (int32)|
+|payHaltStatus||false|string|
+|confirmStoppingPayment||false|string|
+|pageNo||false|integer (int32)|
+|pageSize||false|integer (int32)|
+|systemCodeId||false|integer (int32)|
+|codeSuffix||false|string|
+|codePrefix||false|string|
+|codePattern||false|string|
+|codeValue||false|string|
+|codeDescription||false|string|
+|merchantBank||false|string|
+|merchantIban||false|string|
+|ecommerceFlag||false|string|
+|===
+
+=== ActivityApiResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|activityApiId||false|integer (int32)|
+|accessRight||false|string|
+|customValidator||false|string|
+|isRestricted||false|string|
+|stp||false|string|
+|api||false|<<ApiResponseDto>>|
+|===
+
+=== ActivityEntityMappingRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|id||false|integer (int32)|
+|entities||false|string array|
+|===
+
+=== ActivityPackageDetailRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|packageDetailId||true|string|
+|packageId||false|string|
+|chargeMethodId||false|string|
+|currencyCodeId||false|string|
+|tranGroupId||false|integer (int32)|
+|tranGroupName||false|string|
+|tranId||false|string|
+|cardSchemeId||false|string|
+|issuerId||false|string|
+|tips||false|string|
+|fixAmount||false|number (float)|
+|percentageAmount||false|number (float)|
+|minAmount||false|number (float)|
+|maxAmount||false|number (float)|
+|startDate||false|string (date-time)|
+|endDate||false|string (date-time)|
+|status||false|string|
+|===
+
+=== ActivityPackageDetailResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|packageDetailId||false|integer (int32)|
+|packageId||false|string|
+|currencyCodeId||false|integer (int32)|
+|currencyCode||false|string|
+|tranGroupId||false|integer (int32)|
+|tranGroupName||false|string|
+|cardSchemeId||false|string|
+|institutionId||false|string|
+|institutionName||false|string|
+|cardScheme||false|string|
+|chargeMethodSystemCodeId||false|integer (int32)|
+|chargeMethodCodeSuffix||false|string|
+|chargeMethod||false|string|
+|tranName||false|string|
+|tranId||false|string|
+|issuerId||false|integer (int32)|
+|issuer||false|string|
+|tips||false|string|
+|fixAmount||false|number (float)|
+|percentageAmount||false|number (float)|
+|minAmount||false|number (float)|
+|maxAmount||false|number (float)|
+|startDate||false|string|
+|endDate||false|string|
+|status||false|string|
+|===
+
+=== ActivityPackageRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|packageId||false|string|
+|packageName||false|string|
+|institutionId||false|string|
+|updateFlag||false|string|
+|===
+
+=== ActivityPackageResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|recordSeqId||false|integer (int32)|
+|packageId||false|string|
+|packageName||false|string|
+|institutionId||false|string|
+|institutionName||false|string|
+|status||false|string|
+|===
+
+=== ActivityPackageTierRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|activityPackageTierId||false|integer (int32)|
+|activityPackageDetailId||false|integer (int32)|
+|frequencyId||false|integer (int32)|
+|percentageAmount||false|number (float)|
+|fixAmount||false|number (float)|
+|startAmount||false|number (float)|
+|uptoAmount||false|number (float)|
+|===
+
+=== ActivityPackageTierResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|activityPackageTierId||false|integer (int32)|
+|packageDetailId||false|integer (int32)|
+|frequencySystemCodeId||false|integer (int32)|
+|frequencyCodeSuffix||false|string|
+|frequencyCodePrefix||false|string|
+|frequencyCodeValue||false|string|
+|frequencyCodeDescription||false|string|
+|percentageAmount||false|number (float)|
+|fixAmount||false|number (float)|
+|startAmount||false|number (float)|
+|uptoAmount||false|number (float)|
+|===
+
+=== ActivityResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|activityId||false|integer (int32)|
+|activityCode||false|string|
+|activityDesc||false|string|
+|parentActivityId||false|integer (int32)|
+|parentActivityDesc||false|string|
+|instId||false|string|
+|instName||false|string|
+|isMenu||false|string|
+|hasScreen||false|string|
+|activityType||false|string|
+|activityMode||false|string|
+|accessView||false|string|
+|accessAdd||false|string|
+|accessUpdate||false|string|
+|accessDelete||false|string|
+|activityApi||false|<<ActivityApiResponseDto>> array|
+|===
+
+=== AddressRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|addressId||true|integer (int32)|
+|institutionId||false|string|
+|entityId||false|string|
+|cntryId||false|integer (int32)|
+|cityId||false|integer (int32)|
+|address1||false|string|
+|address2||false|string|
+|address3||false|string|
+|address4||false|string|
+|postalCodeZip||false|string|
+|geoCode||false|string|
+|phone1||false|string|
+|phoneExternal||false|string|
+|phone2||false|string|
+|mobile1||false|string|
+|fax||false|string|
+|emailAddress1||false|string|
+|emailAddress2||false|string|
+|url||false|string|
+|mobile2||false|string|
+|freeText1||false|string|
+|freeText2||false|string|
+|===
+
+=== AddressResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|addressId||false|integer (int32)|
+|institutionId||false|string|
+|entityId||false|string|
+|cntryId||false|integer (int32)|
+|cityId||false|integer (int32)|
+|address1||false|string|
+|address2||false|string|
+|address3||false|string|
+|address4||false|string|
+|postalCodeZip||false|string|
+|geoCode||false|string|
+|phone1||false|string|
+|phoneExternal||false|string|
+|phone2||false|string|
+|mobile1||false|string|
+|fax||false|string|
+|emailAddress1||false|string|
+|emailAddress2||false|string|
+|url||false|string|
+|mobile2||false|string|
+|freeText1||false|string|
+|freeText2||false|string|
+|===
+
+=== ApiResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|apiId||false|integer (int32)|
+|apiCode||false|string|
+|apiUrl||false|string|
+|apiDesc||false|string|
+|enabled||false|string|
+|===
+
+=== BKDParameterResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|parameterId||false|integer (int32)|
+|parametersServiceId||false|integer (int32)|
+|parameterName||false|string|
+|isMandatory||false|string|
+|===
+
+=== BankCodeRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|bankCodeId||true|integer (int32)|
+|bankCode||true|string|
+|bankName||true|string|
+|altBankName||true|string|
+|swiftCode||false|string|
+|institutionId||true|string|
+|===
+
+=== BankCodeResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|bankCodeId||false|integer (int32)|
+|institutionName||false|string|
+|institutionId||false|string|
+|bankCode||false|string|
+|bankName||false|string|
+|altBankName||false|string|
+|swiftCode||false|string|
+|===
+
+=== BankFilesOutputRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|bankFilesOutputId||true|integer (int32)|
+|institutionId||true|string|
+|bankCode||true|string|
+|outputFileType||true|string|
+|outputTemplateHdrId||true|integer (int32)|
+|outputFileTypeAbbr||true|string|
+|===
+
+=== BankFilesOutputResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|bankFilesOutputId||false|integer (int32)|
+|institutionId||false|string|
+|bankCode||false|string|
+|outputFileType||false|string|
+|outputFileTypeAbbr||false|string|
+|outputTemplateHdrId||false|integer (int32)|
+|===
+
+=== BkdServiceRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|serviceId||true|integer (int32)|
+|batchSize||true|integer (int32)|
+|===
+
+=== BkdServiceResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|serviceId||false|integer (int32)|
+|serviceName||false|string|
+|serviceMode||false|string|
+|className||false|string|
+|srcFolder||false|string|
+|destFolder||false|string|
+|filter||false|string|
+|batchSize||false|integer (int32)|
+|===
+
+=== BusinessType
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|businessTypeId||false|integer (int32)|
+|businessType||false|string|
+|discription||false|string|
+|===
+
+=== BusinessTypeResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|businessTypeId||false|integer (int32)|
+|businessType||false|string|
+|===
+
+=== CardSchemeRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|recordSequenceNumber||true|integer (int32)|
+|cardSchemeId||false|string|
+|cardSchemeName||false|string|
+|cardSchemeSpecific||false|string|
+|status||false|string|
+|===
+
+=== CardSchemeResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|recordSequenceNumber||false|integer (int32)|
+|cardSchemeId||false|string|
+|cardSchemeName||false|string|
+|cardSchemeSpecific||false|string|
+|status||false|string|
+|===
+
+=== ChangeStatusRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|id||false|integer (int32)|
+|status||false|string|
+|idString||false|string|
+|changeAllFlag||false|string|
+|===
+
+=== ChargeMethod
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|chargeMethodId||false|integer (int32)|
+|chargeMethod||false|string|
+|===
+
+=== CityResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|cityId||false|integer (int32)|
+|cityAbbrev||false|string|
+|cityName||false|string|
+|cityNameAlt||false|string|
+|cntryCode||false|string|
+|provStateAbbrev||false|string|
+|===
+
+=== CountryResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|cntryId||false|integer (int32)|
+|cntryCode||false|string|
+|cntryName||false|string|
+|cntryNameAlt||false|string|
+|cntryCodeAlpha2||false|string|
+|cntryCodeAlpha3||false|string|
+|currencyId||false|integer (int32)|
+|currencyCode||false|string|
+|currencyName||false|string|
+|currPattern||false|string|
+|datePattern||false|string|
+|economicAreaInd||false|string|
+|cntryStatus||false|string|
+|===
+
+=== EntitiesResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|entityId||false|string|
+|entityName||false|string|
+|entityNameAlt||false|string|
+|dbaName||false|string|
+|dbaNameAlt||false|string|
+|institutionId||false|string|
+|institutionName||false|string|
+|mccId||false|integer (int32)|
+|mccName||false|string|
+|mccDescription||false|string|
+|activityPackageId||false|string|
+|activityPackageIdRecordSeqId||false|integer (int32)|
+|activityPackageName||false|string|
+|nonActivityPackageId||false|string|
+|nonActivityPackageName||false|string|
+|entityLevelId||false|integer (int32)|
+|hierarchyLevel||false|integer (int32)|
+|typeDescription||false|string|
+|parentId||false|string|
+|parentName||false|string|
+|entityStatus||false|string|
+|onHoldInd||false|string|
+|hotMerchantFlag||false|string|
+|companyRegisterNBR||false|string|
+|companyVatNBR||false|string|
+|bankCodeId||false|integer (int32)|
+|bankCodeName||false|string|
+|bankName||false|string|
+|defAccountNumber||false|string|
+|defIBAN||false|string|
+|defSettlementCurrency||false|integer (int32)|
+|defSettlementCurrencyName||false|string|
+|defSettlementCurrencyCode||false|string|
+|contractDate||false|string|
+|expStartDate||false|string|
+|actualStartDate||false|string|
+|terminationDate||false|string|
+|lastTransDate||false|string|
+|associatedPayment||false|string|
+|paymentMethod||false|string|
+|paymentFrequency||false|string|
+|addValueDateDays||false|integer (int32)|
+|statementType||false|string|
+|salesmanId||false|integer (int32)|
+|salesmanName||false|string|
+|employeeIncharge||false|integer (int32)|
+|employeeInchargeName||false|string|
+|status||false|string|
+|acctTemplateHdrId||false|integer (int32)|
+|isCloned||false|string|
+|businessTypeSystemCodeId||false|integer (int32)|
+|businessTypeCodeSuffix||false|string|
+|businessTypeCodePrefix||false|string|
+|businessTypeCodeValue||false|string|
+|businessTypeCodeDescription||false|string|
+|pageNo||false|integer (int32)|
+|pageSize||false|integer (int32)|
+|estatementToEntity||false|string|
+|===
+
+=== FileElementResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|elementId||false|integer (int32)|
+|elementName||false|string|
+|elementSection||false|string|
+|isRepeated||false|string|
+|validationRequired||false|string|
+|isMandatory||false|string|
+|validationLength||false|integer (int32)|
+|validationFormat||false|string|
+|===
+
+=== FileResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|fileId||false|integer (int32)|
+|fileName||false|string|
+|fileTypeId||false|integer (int32)|
+|fileTypeCode||false|string|
+|status||false|string|
+|===
+
+=== JobDefinitionTaskRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|taskId||false|integer (int32)|
+|priority||false|integer (int32)|
+|jobTaskParamtersRequestDto||false|<<JobTaskParametersRequestDto>> array|
+|===
+
+=== JobDefinitionTaskResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|jobTaskId||false|integer (int32)|
+|jobId||false|integer (int32)|
+|priority||false|string|
+|jobTaskParametersResponseDto||false|<<JobTaskParametersResponseDto>> array|
+|task||false|<<JobTaskResponseDto>>|
+|===
+
+=== JobExecutionLogRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|jobId||false|integer (int32)|
+|fromDate||false|string|
+|toDate||false|string|
+|paginationRequestDto||false|<<SpecificSortPaginationRequestDto>>|
+|===
+
+=== JobExecutionLogResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|execId||false|integer (int32)|
+|jobId||false|integer (int32)|
+|jobName||false|string|
+|startDate||false|string (date-time)|
+|endDate||false|string (date-time)|
+|executionDetails||false|string|
+|status||false|string|
+|===
+
+=== JobRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|jobId||true|integer (int32)|
+|jobName||false|string|
+|jobDescription||false|string|
+|alertSuccess||false|string|
+|successEmail||false|string|
+|alertFailure||false|string|
+|failEmail||false|string|
+|status||false|string|
+|jobDefinitionTask||false|<<JobDefinitionTaskRequestDto>> array|
+|===
+
+=== JobResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|jobId||false|integer (int32)|
+|jobName||false|string|
+|jobDescription||false|string|
+|enabled||false|string|
+|instId||false|integer (int32)|
+|alertSuccess||false|string|
+|successEmail||false|string|
+|alertFailure||false|string|
+|failEmail||false|string|
+|lastExecId||false|integer (int32)|
+|lastRunResult||false|string|
+|frequency||false|integer (int32)|
+|startDate||false|string|
+|endDate||false|string|
+|recurring||false|string|
+|recurringFreq||false|integer (int32)|
+|monthDay||false|integer (int32)|
+|maxExceTime||false|integer (int32)|
+|status||false|string|
+|jobDefinitionTask||false|<<JobDefinitionTaskResponseDto>> array|
+|===
+
+=== JobScheduledMonitoringResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|jobId||false|integer (int32)|
+|jobName||false|string|
+|startTime||false|string (date-time)|
+|lastRunStatus||false|string|
+|lastRunStart||false|string (date-time)|
+|lastRunEnd||false|string (date-time)|
+|status||false|string|
+|===
+
+=== JobTaskParametersRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|parametersServiceId||false|integer (int32)|
+|parameterValue||false|string|
+|===
+
+=== JobTaskParametersResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|jobTaskParamId||false|integer (int32)|
+|jobTaskId||false|integer (int32)|
+|parametersServiceId||false|integer (int32)|
+|parameterId||false|integer (int32)|
+|parameterValue||false|string|
+|parameterName||false|string|
+|isMandatory||false|string|
+|===
+
+=== JobTaskResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|taskId||false|integer (int32)|
+|taskName||false|string|
+|taskDescription||false|string|
+|serviceMode||false|string|
+|parameterResponseDto||false|<<BKDParameterResponseDto>> array|
+|===
+
+=== LayoutDetailsRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|detailsId||false|integer (int32)|
+|detailsFlag||false|string|
+|elementId||false|integer (int32)|
+|elementLength||false|integer (int32)|
+|paddingType||false|string|
+|paddingValue||false|string|
+|elementSection||false|string|
+|elementOrder||false|integer (int32)|
+|elementParentId||false|integer (int32)|
+|===
+
+=== LayoutDetailsResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|detailsId||false|integer (int32)|
+|elementId||false|integer (int32)|
+|elementName||false|string|
+|elementLength||false|integer (int32)|
+|elementPaddingType||false|string|
+|elementPaddingValue||false|string|
+|elementSection||false|string|
+|elementOrder||false|integer (int32)|
+|elementParentId||false|integer (int32)|
+|elementParentName||false|string|
+|===
+
+=== LayoutRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|layoutId||false|integer (int32)|
+|layoutName||false|string|
+|layoutFormat||false|string|
+|layoutSeparator||false|string|
+|includesHeader||true|boolean|
+|fileId||false|integer (int32)|
+|status||false|string|
+|listLayoutDetailsRequest||false|<<LayoutDetailsRequestDto>> array|
+|===
+
+=== LayoutResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|layoutId||false|integer (int32)|
+|layoutName||false|string|
+|fileResponseDto||false|<<FileResponseDto>>|
+|layoutFormat||false|string|
+|layoutFormatDesc||false|string|
+|layoutSeparator||false|string|
+|includesHeader||false|boolean|
+|instId||false|integer (int32)|
+|instName||false|string|
+|status||false|string|
+|listLayoutDetailsResponse||false|<<LayoutDetailsResponseDto>> array|
+|===
+
+=== ListFileElementResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|fileId||false|integer (int32)|
+|fileName||false|string|
+|fileElementResponseDto||false|<<FileElementResponseDto>> array|
+|===
+
+=== OutputFileTemplateBankCodeMappingRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|bankCodes||false|string array|
+|outputFileTemplateHdrId||false|integer (int32)|
+|===
+
+=== PageableJobExecutionLogResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|jobExecutionLogResponseDto||false|<<JobExecutionLogResponseDto>> array|
+|paginationCommonResponseDto||false|<<PaginationCommonResponseDto>>|
+|===
+
+=== PageableLayoutResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|listLayoutResponseDto||false|<<LayoutResponseDto>> array|
+|paginationResponseDto||false|<<PaginationLayoutResponseDto>>|
+|===
+
+=== PaginationCommonResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|pageNumber||false|integer (int32)|
+|pageSize||false|integer (int32)|
+|sortBy||false|string|
+|asc||false|string|
+|totalNumberOfRecords||false|integer (int32)|
+|===
+
+=== PaginationLayoutResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|pageNumber||false|integer (int32)|
+|pageSize||false|integer (int32)|
+|sortBy||false|string|
+|asc||false|string|
+|totalNumberOfRecords||false|integer (int32)|
+|===
+
+=== PaginationRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|offset||false|integer (int32)|
+|pageSize||false|integer (int32)|
+|sortBy||false|string|
+|asc||false|string|
+|===
+
+=== PaginationResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|response||false|boolean|
+|message||false|string|
+|data||false|object|
+|totalPages||false|integer (int32)|
+|totalRecords||false|integer (int64)|
+|===
+
+=== ScheduleJobRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|jobId||false|integer (int32)|
+|frequency||false|string|
+|startDateTime||false|string|
+|endDateTime||false|string|
+|repeatTaskFlag||false|string|
+|repeatTaskHour||false|integer (int32)|
+|repeatTaskMinute||false|integer (int32)|
+|repeatTaskSecond||false|integer (int32)|
+|monthDay||false|integer (int32)|
+|stopTaskFlag||false|string|
+|stopTaskHour||false|integer (int32)|
+|stopTaskMinute||false|integer (int32)|
+|===
+
+=== SortDTO
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|column||false|string|
+|sortOrder||false|enum (ASC, DESC)|
+|===
+
+=== SpecificSortPaginationRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|offset||false|integer (int32)|
+|pageSize||false|integer (int32)|
+|===
+
+=== TransactionCurrentSearchResponseDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|recordSeqId||false|integer (int32)|
+|institutionId||false|string|
+|outletCode||false|string|
+|merchantName||false|string|
+|merchantCategory||false|string|
+|merchantBank||false|string|
+|merchantAccountNumber||false|string|
+|merchantIBAN||false|string|
+|merchantAccountCurrency||false|string|
+|merchantBranch||false|string|
+|merchantBankSwift||false|string|
+|merchantBeneficiaryName||false|string|
+|merchPaymentDate||false|string (date-time)|
+|terminalId||false|string|
+|terminalLocation||false|string|
+|sourceReference||false|string|
+|pan||false|string|
+|cardNumber||false|string|
+|maskPan||false|string|
+|cardSeqNumber||false|integer (int32)|
+|expiryDate||false|string (date-time)|
+|microfilmRefNumber||false|string|
+|refNumberSeq||false|integer (int32)|
+|issuerAcqProfile||false|string|
+|cardScheme||false|string|
+|linkupCode||false|string|
+|processingCode||false|integer (int32)|
+|transId||false|string|
+|reversalFlag||false|string|
+|sourceAmount||false|number (double)|
+|sourceCurrency||false|string|
+|billingAmount||false|number (double)|
+|billingCurrency||false|string|
+|settlementAmount||false|number (double)|
+|settlementCurrency||false|string|
+|localAmount||false|number (double)|
+|localCurrency||false|string|
+|tipsAmount||false|number (double)|
+|tipsSettlementAmount||false|number (double)|
+|tipsCurrency||false|string|
+|dccAmount||false|number (double)|
+|dccCurrency||false|string|
+|dccMerchantAmount||false|number (double)|
+|dccMerchantSettlementAmount||false|number (double)|
+|dccMerchantSettlementCurrency||false|string|
+|merchantCommission||false|number (double)|
+|merchMarkup||false|number (double)|
+|chMarkup||false|number (double)|
+|feeAmount1||false|number (double)|
+|feeAmount1Currency||false|string|
+|feeAmount2||false|number (double)|
+|feeAmount2Currency||false|string|
+|transactionAmount||false|number (double)|
+|transCurrency||false|string|
+|transactionDate||false|string (date-time)|
+|transTime||false|string (date-time)|
+|authorizationNumber||false|string|
+|billingProcessingFlag||false|string|
+|settlProcessingFlag||false|string|
+|settlProcessingNumber||false|integer (int32)|
+|settlMerchHalt||false|string|
+|batchId||false|string|
+|merchantCountry||false|string|
+|acquirerId||false|string|
+|issuerId||false|string|
+|issuerRefNumber||false|string|
+|acqInstId||false|string|
+|issuerInstId||false|string|
+|acquirerData||false|string|
+|issuerData||false|string|
+|terminalData||false|string|
+|ecommerceFlag||false|string|
+|originNetwork||false|string|
+|destinationNetwork||false|string|
+|processingDate||false|string (date-time)|
+|merchSettlementDate||false|string|
+|reversalReason||false|string|
+|reversalComment||false|string|
+|manualEntry||false|string|
+|manualComment||false|string|
+|chargebackComment||false|string|
+|chargebackReason||false|string|
+|representmentComment||false|string|
+|representmentReason||false|string|
+|confirmStoppingPayment||false|string|
+|toBePaidToMerchant||false|string|
+|payHaltComment||false|string|
+|payHaltStatus||false|string|
+|usageCode||false|integer (int32)|
+|reasonCode||false|integer (int32)|
+|acquirerRecordToAppear||false|string|
+|issuerRecordToAppear||false|string|
+|processingRefNumber1||false|string|
+|processingRefNumber2||false|string|
+|processingRefNumber3||false|string|
+|processingRefNumber4||false|string|
+|processingRefNumber5||false|string|
+|userCreate||false|string|
+|dateCreate||false|string (date-time)|
+|===
+
+=== UnhaltRequestDto
+[options="header"]
+|===
+|Name|Description|Required|Schema|Default
+|institutionId||false|string|
+|acquiringTransactionIds||false|integer (int32) array|
+|===
+

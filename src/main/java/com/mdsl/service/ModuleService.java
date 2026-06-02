@@ -71,7 +71,7 @@ public class ModuleService {
                 fu.setAccessRight(rs.getString("ACCESS_RIGHT"));
                 row.urls.add(fu);
             }
-        }, instId, userId);
+        }, String.valueOf(instId), userId);
 
         // Build parentId → [childIds] map; collect roots (no parent in result set)
         Map<Integer, List<Integer>> children = new LinkedHashMap<>();

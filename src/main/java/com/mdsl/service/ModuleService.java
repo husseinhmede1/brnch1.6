@@ -111,6 +111,12 @@ public class ModuleService {
             }
         }
 
+        // If this root activity has no children (flat DB structure — no PARENT_ACTIVITY_ID set),
+        // include itself as an activity so the frontend permission check can find it by activityCode.
+        if (activities.isEmpty() && subModules.isEmpty()) {
+            activities.add(toActivityDto(row));
+        }
+
         return ModuleActivityResponseDto.builder()
                 .moduleId(row.activityId)
                 .moduleDesc(row.activityDesc)

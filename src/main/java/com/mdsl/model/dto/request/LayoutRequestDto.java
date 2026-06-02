@@ -47,6 +47,9 @@ public class LayoutRequestDto {
 	@Pattern(regexp="[0|1]", message=ResponseCode.CFG_INVALID_STATUS)
 	private String status;
 	
+	private String instId;
+	private String remoteAddress;
+	
 	@Valid
 	private List<LayoutDetailsRequestDto> listLayoutDetailsRequest;
 }

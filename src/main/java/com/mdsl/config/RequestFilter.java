@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.mdsl.model.dto.response.ErrorDto;
+import com.mdsl.model.dto.response.SuccessfulResponseDto;
 import com.mdsl.model.entity.UserAccess;
 import com.mdsl.model.entity.UserRole;
 import com.mdsl.repository.InstitutionRepository;
@@ -88,6 +89,7 @@ public class RequestFilter extends OncePerRequestFilter {
         char userLevel;
         Integer userId;
         Claims claims;
+        Optional<Api> api = null;
 
         String reqURL = request.getRequestURI();
 
@@ -110,16 +112,16 @@ public class RequestFilter extends OncePerRequestFilter {
 //            String origReqURL = getRequestURL(reqURL);
 //            logger.debug("@RequestFilter#doFilterInternal: URL[{}]", origReqURL);
 
-            Api api = apiRepository.findByApiUrlAndApiFunctionAndInstitution(reqURL, httpMethod.trim(), (Objects.isNull(request.getHeader("instId")) || request.getHeader("instId").equalsIgnoreCase("null") || request.getHeader("instId") == null) ? 1 : Integer.parseInt(request.getHeader("instId")));
-            if (api == null) {
+            api = apiRepository.findByApiUrlAndApiFunctionAndInstitution(reqURL, httpMethod.trim(), (Objects.isNull(request.getHeader("instId")) || request.getHeader("instId").equalsIgnoreCase("null") || request.getHeader("instId") == null) ? 1 : Integer.parseInt(request.getHeader("instId")));
+            if (api.isEmpty()) {
                 logger.debug("@RequestFilter#doFilterInternal: Invalid API");
                 handleFailedAccess(response, ResponseCode.CFG_INVALID_API, HttpStatus.BAD_REQUEST, request);
                 return;
             }
             request.setAttribute(CommonConstants.MAKER_CHECKER_API_ENTITY, api);
-            logger.debug("@RequestFilter#doFilterInternal: API ID[{}] - LoginRequired[{}] - RoleRequired[{}]", api.getApiId(), api.getLoginRequired(), api.getRoleRequired());
+            api.ifPresent(value -> logger.debug("@RequestFilter#doFilterInternal: API ID[{}] - LoginRequired[{}] - RoleRequired[{}]", value.getApiId(), value.getLoginRequired(), value.getRoleRequired()));
 
-            if (api.getLoginRequired() == '1') {
+            if (api.get().getLoginRequired() == '1') {
                 logger.debug("Remote IP Address: {}", request.getRemoteAddr());
 
                 final String requestTokenHeader = request.getHeader("Authorization");
@@ -203,10 +205,10 @@ public class RequestFilter extends OncePerRequestFilter {
                 //The view VW_USER_ROLES_ACCESS contains all the needed information
                 //To check if a user has access we need to find a record in view VW_USER_ROLES_ACCESS
                 //For the user id, api id and the access view/update/delete set to true depending on the HTTP method
-                if (api.getRoleRequired() == StatusEnum.ENABLED.getValue()) {
+                if (api.get().getRoleRequired() == StatusEnum.ENABLED.getValue()) {
                     boolean userHasRoleAccess;
                     userHasRoleAccess = checkUserRole(userAccess.get().getUser().getUserRoles().stream()
-                            .map(e -> e.getRole().getRoleId()).collect(Collectors.toList()), api, httpMethod);
+                            .map(e -> e.getRole().getRoleId()).collect(Collectors.toList()), api.get(), httpMethod);
 
                     logger.debug("@RequestFilter#doFilterInternal: User {} access to the requested API", userHasRoleAccess ? "has" : "doesn't have");
                     if (!userHasRoleAccess) {
@@ -279,6 +281,17 @@ public class RequestFilter extends OncePerRequestFilter {
         } catch (IOException e) {
             logger.error("@RequestFilter#doFilterInternal: " + e.getMessage());
             handleFailedAccess(response, e.getMessage(), HttpStatus.BAD_REQUEST, request);
+        }
+        finally {
+            if (api != null && "0".equals(api.get().getStp()) && response.getStatus()==HttpStatus.OK.value()) {
+                SuccessfulResponseDto messageContent = new SuccessfulResponseDto();
+                messageContent.setMessage("Your activity is pending approval");
+                String json = objectMapper.writeValueAsString(messageContent);
+                responseWrapper.resetBuffer();
+                responseWrapper.getWriter().flush();
+                responseWrapper.getWriter().write(json);
+                responseWrapper.setStatus(HttpStatus.OK.value());
+            }
         }
         responseWrapper.copyBodyToResponse();
     }

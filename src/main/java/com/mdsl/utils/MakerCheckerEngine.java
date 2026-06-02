@@ -23,7 +23,7 @@ public class MakerCheckerEngine {
     private final PendingActivityRepository pendingRepository;
     private final ObjectMapper objectMapper;
 
-    public boolean processIfRequired(Object payload, String clazz, String method, String notes, Integer institutionId) {
+    public boolean processIfRequired(Object payload, String clazz, String method, String notes) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes == null) {
             return false;
@@ -44,7 +44,7 @@ public class MakerCheckerEngine {
                         .api(matchedApi)
                         .status(ActivityStatus.PENDING)
                         .notes(notes)
-                        .institution(institutionId)
+                        .institution(String.valueOf(matchedApi.getInstitution()))
                         .clazz(clazz)
                         .method(method)
                         .payload(serializedPayload)

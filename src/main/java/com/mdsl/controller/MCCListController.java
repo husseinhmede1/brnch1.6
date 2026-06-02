@@ -68,7 +68,7 @@ public class MCCListController {
 	}
 
 	@PostMapping
-	public ResponseEntity saveOrUpdateMccList(@Valid @RequestBody MCCListRequestDto mccListRequestDto, BindingResult bindingResult) {
+	public ResponseEntity saveOrUpdateMccList(@Valid @RequestBody MCCListRequestDto mccListRequestDto, BindingResult bindingResult, HttpServletRequest request) {
 		Validations.validate(bindingResult);
 		try {
 			return ResponseEntity.ok(mccListService.saveOrUpdateMccList(mccListRequestDto));

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
+import com.mdsl.model.dto.request.DeleteNonActivityPackageRequestDto;
 import com.mdsl.model.dto.request.NonActivityPackageEntityMappingRequestDto;
 import com.mdsl.model.dto.request.NonActivityPackageRequestDto;
 import com.mdsl.model.dto.response.EntitiesResponseDto;
@@ -30,6 +31,7 @@ import com.mdsl.repository.EntitiesRepository;
 import com.mdsl.repository.InstitutionRepository;
 import com.mdsl.repository.NonActivityPackageDetailsRepository;
 import com.mdsl.repository.NonActivityPackageRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
 import lombok.RequiredArgsConstructor;
@@ -54,6 +56,7 @@ public class NonActivityPackageService {
 	
 	@Autowired
 	private EntityMapper entityMapper;
+    private final MakerCheckerEngine makerCheckerEngine;
 
 	public List<NonActivityPackageResponseDto> getAllNonActivityPackages() {
 		List<NonActivityPackageResponseDto> allNonActivityPackageCodesDto = new ArrayList<NonActivityPackageResponseDto>();
@@ -129,6 +132,9 @@ public class NonActivityPackageService {
 			pkg.setPackageName(nonActivityPackageRequestDto.getPackageName());
 			pkg.setInstitution(institution);
 		//	pkg.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
+			if (makerCheckerEngine.processIfRequired(nonActivityPackageRequestDto, NonActivityPackageService.class.getName(), "saveOrUpdateNonActivityPackage", "")) {
+				return null;
+			}
 			nonActivityPackage = nonActivityPackageRepository.save(pkg);
 
 		}
@@ -153,25 +159,28 @@ public class NonActivityPackageService {
 			if(userDetails!=null) {
 				nonActivityPackage.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
 			}
+			if (makerCheckerEngine.processIfRequired(nonActivityPackageRequestDto, NonActivityPackageService.class.getName(), "saveOrUpdateNonActivityPackage", "")) {
+				return null;
+			}
 			nonActivityPackage = nonActivityPackageRepository.save(nonActivityPackage);
-
 		}
-
 		return nonActivityPackageMapper.toDto(nonActivityPackage);
 	}
 
 	@Modifying
 	@Transactional
-	public void deleteNonActivityPackage(String id, String instId) {
+	public void deleteNonActivityPackage(DeleteNonActivityPackageRequestDto deleteNonActivityPackageRequestDto) {
 	    // Verify it exists first
-	    nonActivityPackageRepository.findByPackageIdAndInstitution_institutionId(id, instId)
+	    nonActivityPackageRepository.findByPackageIdAndInstitution_institutionId(deleteNonActivityPackageRequestDto.getId(),deleteNonActivityPackageRequestDto.getInstId())
 	        .orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_ACTIVITY, HttpStatus.NOT_FOUND));
-	    
+		if (makerCheckerEngine.processIfRequired(deleteNonActivityPackageRequestDto, NonActivityPackageService.class.getName(), "deleteNonActivityPackage", "")) {
+			return;
+		}
 	    // Delete details first (bulk delete - already working)
-	    nonActivityPackageDetailsRepository.deleteByNonActivityPackageAndInstitution(id, instId);
+	    nonActivityPackageDetailsRepository.deleteByNonActivityPackageAndInstitution(deleteNonActivityPackageRequestDto.getId(),deleteNonActivityPackageRequestDto.getInstId());
 	    
 	    // Delete parent (bulk delete - avoids the orphanRemoval check)
-	    nonActivityPackageRepository.deleteByPackageIdAndInstitutionId(id, instId);
+	    nonActivityPackageRepository.deleteByPackageIdAndInstitutionId(deleteNonActivityPackageRequestDto.getId(),deleteNonActivityPackageRequestDto.getInstId());
 	}
 
 	public String changeStatus(ChangeStatusRequestDto changeStatusRequestDto) {
@@ -179,6 +188,9 @@ public class NonActivityPackageService {
 				.findByPackageIdAndInstitution_institutionId(String.valueOf(changeStatusRequestDto.getIdString()), changeStatusRequestDto.getInstId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_ACTIVITY, HttpStatus.NOT_FOUND));
 		nonActivityPackage.setStatus(changeStatusRequestDto.getStatus().charAt(0));
+		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, NonActivityPackageService.class.getName(), "changeStatus", "")) {
+			return null;
+		}
 		nonActivityPackageRepository.save(nonActivityPackage);
 
 		return "Status changed successfully";
@@ -186,12 +198,12 @@ public class NonActivityPackageService {
 
 
 	public NonActivityPackageEntityMappingRequestDto mapPackageWithEntity(
-			NonActivityPackageEntityMappingRequestDto requestDto, String instId) {
-		NonActivityPackage nonActivityPackage = nonActivityPackageRepository.findByPackageIdAndInstitution_institutionId(requestDto.getId(), instId)
+			NonActivityPackageEntityMappingRequestDto requestDto) {
+		NonActivityPackage nonActivityPackage = nonActivityPackageRepository.findByPackageIdAndInstitution_institutionId(requestDto.getId(), requestDto.getInstId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_ACT_PKG_ID, HttpStatus.NOT_FOUND));
 		List<String> listofEntityRequstDto = requestDto.getEntities();
 
-		List<Entities> oldEntityAssign = entitiesRepository.findByNonactivityFeePKGEntity_PackageIdAndInstitution_institutionId(nonActivityPackage.getPackageId(),instId,
+		List<Entities> oldEntityAssign = entitiesRepository.findByNonactivityFeePKGEntity_PackageIdAndInstitution_institutionId(nonActivityPackage.getPackageId(),requestDto.getInstId(),
 				Sort.by(Sort.Direction.ASC, "entityId"));
 		if (!oldEntityAssign.isEmpty()) {
 
@@ -202,6 +214,9 @@ public class NonActivityPackageService {
 					.collect(Collectors.toList());
 
 			List<String> entityIds = oldEntityAssign.stream().map(Entities::getEntityId).collect(Collectors.toList());
+			if (makerCheckerEngine.processIfRequired(requestDto, NonActivityPackageService.class.getName(), "mapPackageWithEntity", "")) {
+				return null;
+			}
 			entityIds.removeAll(requestDto.getEntities());
 			entityIds.forEach((id) -> {
 				Entities entities = entitiesRepository.findByEntityIdAndInstitution(id,nonActivityPackage.getInstitution()).orElseThrow(

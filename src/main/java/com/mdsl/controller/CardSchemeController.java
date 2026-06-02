@@ -54,8 +54,9 @@ public class CardSchemeController {
 	
 	@ApiOperation(value = "Save Card Scheme",response = CardSchemeResponseDto.class)
 	@PostMapping
-	public ResponseEntity<CardSchemeResponseDto> saveOrUpdateCardScheme(@Valid @RequestBody CardSchemeRequestDto cardSchemeRequestDto,BindingResult bindingResult){
+	public ResponseEntity<CardSchemeResponseDto> saveOrUpdateCardScheme(@Valid @RequestBody CardSchemeRequestDto cardSchemeRequestDto,BindingResult bindingResult, HttpServletRequest request){
 		Validations.validate(bindingResult);
+		cardSchemeRequestDto.setInstId(request.getHeader("instId"));
 		return ResponseEntity.ok(cardSchemeService.saveOrUpdateCardScheme(cardSchemeRequestDto));
 	}
 	

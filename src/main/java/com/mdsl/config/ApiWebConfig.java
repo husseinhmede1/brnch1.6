@@ -64,6 +64,7 @@ public class ApiWebConfig {
 	}
 
 	//JdbcTemplate for connection
+	@Primary
 	@Bean(name = "appJdbcTemplate")
 	public JdbcTemplate jdbcTemplate(@Qualifier("datasource") DataSource ds) {
 		return new JdbcTemplate(ds);

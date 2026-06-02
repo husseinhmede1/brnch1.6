@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.mdsl.utils.MakerCheckerEngine;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,6 +36,7 @@ public class AccountingTemplateDetailsService
     private final InstitutionRepository institutionRepository;
     private final DefaultTransactionIdRepository defaultTransactionIdRepository;
     private final AccountingTemplateDetailsMapper accountingTemplateDetailsMapper;
+    private final MakerCheckerEngine makerCheckerEngine;
 
     public List<AccountingTemplateDetailsResponseDto> getAllAccountingTemplateDetailsByAccountingTemplateHDRSubId(final int id) {
         try {
@@ -155,6 +157,9 @@ public class AccountingTemplateDetailsService
 
     public void deleteAccountingTemplateDetails(final int id) {
         AccountingTemplateDetails accountingTemplateDetails = this.accountingTemplateDetailsRepository.findById(id).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_ACCOUNTING_TEMPLATE_DTL, HttpStatus.NOT_FOUND));
+        if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), "deleteAccountingTemplateDetails", "")) {
+            return;
+        }
         this.accountingTemplateDetailsRepository.delete(accountingTemplateDetails);
     }
 }

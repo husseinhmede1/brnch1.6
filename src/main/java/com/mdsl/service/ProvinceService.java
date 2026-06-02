@@ -8,23 +8,24 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.ProvinceResquestDto;
-import com.mdsl.model.dto.response.CountryResponseDto;
 import com.mdsl.model.dto.response.ProvinceResponseDto;
 import com.mdsl.model.entity.Country;
 import com.mdsl.model.entity.Province;
 import com.mdsl.model.mapper.ProvinceMapper;
 import com.mdsl.repository.CountryRepository;
 import com.mdsl.repository.ProvinceRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
+
+import lombok.RequiredArgsConstructor;
 
 
 @Service
+@RequiredArgsConstructor
 public class ProvinceService {
 
 	@Autowired
@@ -35,7 +36,8 @@ public class ProvinceService {
 	
 	@Autowired
 	private ProvinceMapper provinceMapper;
-	
+    private final MakerCheckerEngine makerCheckerEngine;
+
 	public List<ProvinceResponseDto> getProvinceByCountry(int countryId) {
 		// TODO Auto-generated method stub
 		List<ProvinceResponseDto> provinceResponseDto = new ArrayList<ProvinceResponseDto>();
@@ -67,14 +69,19 @@ public class ProvinceService {
 			saveProvince.setCntryCode(country);
 			saveProvince.setDate(province.getDate());
 		}
+   		if (makerCheckerEngine.processIfRequired(provinceResquestDto, ProvinceService.class.getName(), "saveOrUpdateProvince", "")) {
+			return null;
+		}
 		saveProvince = provinceRepository.save(saveProvince);
 		ProvinceResponseDto pdto = provinceMapper.toDto(saveProvince);
 		return pdto;
 	}
 
 	public void deleteProvince(int provinceId)throws Exception {
-		// TODO Auto-generated method stub
-		provinceRepository.findById(provinceId).orElseThrow(() -> new BusinessException(ResponseCode.CFG_PROVINCE_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
+		 Province province=provinceRepository.findById(provinceId).orElseThrow(() -> new BusinessException(ResponseCode.CFG_PROVINCE_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
+   		if (makerCheckerEngine.processIfRequired(provinceId, ProvinceService.class.getName(), "deleteProvince", "")) {
+			return;
+		}
 		provinceRepository.deleteById(provinceId);
 	}
 	public List<ProvinceResponseDto> getAllProvince() {

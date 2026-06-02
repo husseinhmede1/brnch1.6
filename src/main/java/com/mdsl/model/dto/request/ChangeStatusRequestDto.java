@@ -21,4 +21,5 @@ public class ChangeStatusRequestDto {
 	private String idString;
 	private String changeAllFlag;
 	private String instId;
+	private String remoteAddress;
 }

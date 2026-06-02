@@ -19,13 +19,19 @@ import com.mdsl.model.entity.City;
 import com.mdsl.model.entity.Country;
 import com.mdsl.model.entity.Province;
 import com.mdsl.model.mapper.CityMapper;
+import com.mdsl.model.mapper.CurrencyMapper;
 import com.mdsl.repository.AddressRepository;
 import com.mdsl.repository.CityRepository;
 import com.mdsl.repository.CountryRepository;
+import com.mdsl.repository.CurrencyRepository;
 import com.mdsl.repository.ProvinceRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class CityService {
 
 	@Autowired
@@ -36,6 +42,7 @@ public class CityService {
 
 	@Autowired
 	private ProvinceRepository provinceRepository;
+    private final MakerCheckerEngine makerCheckerEngine;
 
 	@Autowired
 	private CityMapper cityMapper;
@@ -137,7 +144,9 @@ public class CityService {
 	        saveCity.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
 
 	    }
-
+		if (makerCheckerEngine.processIfRequired(cityResquestDto, CityService.class.getName(), "saveOrUpdateCity", "")) {
+			return null;
+		}
 	    saveCity = cityRepository.save(saveCity);
 	    return cityMapper.toDto(saveCity);
 	}
@@ -149,6 +158,9 @@ public class CityService {
         if (addressLinkedCount>0) {
             throw new BusinessException(ResponseCode.INVALID_UPDATE_CITY_CODE, HttpStatus.BAD_REQUEST);
         }  
+		if (makerCheckerEngine.processIfRequired(cityId, CityService.class.getName(), "deleteProvince", "")) {
+			return;
+		}
 		cityRepository.deleteById(cityId);
 	}
 }

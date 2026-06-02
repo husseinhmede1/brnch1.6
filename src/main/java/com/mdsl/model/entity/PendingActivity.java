@@ -35,7 +35,7 @@ public class PendingActivity {
     private String notes;
 
     @Column(name = "INST_ID")
-    private Integer institution;
+    private String institution;
 
     @Column(name = "CLASS")
     private String clazz;

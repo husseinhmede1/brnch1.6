@@ -29,6 +29,7 @@ import com.mdsl.repository.DefaultTransactionIdRepository;
 import com.mdsl.repository.EntitiesRepository;
 import com.mdsl.repository.InstitutionRepository;
 import com.mdsl.repository.NonActivityFeeQueryRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.PaginationCommonCode;
 import com.mdsl.utils.ResponseCode;
 
@@ -54,6 +55,7 @@ public class NonActivityFeeQueryService {
 
 	@Autowired
 	private NonActivityFeeQueryMapper nonActivityFeeQueryMapper;
+    private final MakerCheckerEngine makerCheckerEngine;
 
 //	public List<NonActivityFeeQueryResponseDto> getAllTransactions() {
 //		List<NonActivityFeeQueryResponseDto> allNonActivityFeeQueryCodesDto = new ArrayList<NonActivityFeeQueryResponseDto>();
@@ -148,6 +150,9 @@ public class NonActivityFeeQueryService {
 			if(userDetails!=null) {
 				nonActivityFeeQuery.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
 			}
+			if (makerCheckerEngine.processIfRequired(nonActivityFeeQueryRequestDto, NonActivityFeeQueryService.class.getName(), "saveOrUpdateNonActivityFeeQuery", "")) {
+				return null;
+			}
 			nonActivityFeeQuery = nonActivityFeeQueryRepository.save(nonActivityFeeQuery);
 		}
 
@@ -170,7 +175,10 @@ public class NonActivityFeeQueryService {
 			nonActivityFeeQuery.setTransaction(defaultTransactionId.getTransactionId());
 			nonActivityFeeQuery.setTransactionEntity(defaultTransactionId);
 			nonActivityFeeQuery.setInstitution(institution);
-		//	nonActivityFeeQuery.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
+
+			if (makerCheckerEngine.processIfRequired(nonActivityFeeQueryRequestDto, NonActivityFeeQueryService.class.getName(), "saveOrUpdateNonActivityFeeQuery", "")) {
+				return null;
+			}
 			nonActivityFeeQuery = nonActivityFeeQueryRepository.save(nonActivityFeeQuery);
 		}
 
@@ -178,8 +186,11 @@ public class NonActivityFeeQueryService {
 	}
 
 	public void deleteNonActivityFeeQuery(int id) throws Exception {
-		nonActivityFeeQueryRepository.findById(id).orElseThrow(
+		NonActivityFeeQuery nonActivityFeeQuery=nonActivityFeeQueryRepository.findById(id).orElseThrow(
 				() -> new BusinessException(ResponseCode.CFG_INVALID_MANUAL_TRANSACTION, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(id, NonActivityFeeQueryService.class.getName(), "deleteNonActivityFeeQuery", "")) {
+			return;
+		}
 		nonActivityFeeQueryRepository.deleteById(id);
 	}
 

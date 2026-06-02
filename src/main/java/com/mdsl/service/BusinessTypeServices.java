@@ -10,14 +10,19 @@ import com.mdsl.model.dto.response.BusinessTypeResponseDto;
 import com.mdsl.model.entity.BusinessType;
 import com.mdsl.model.mapper.BusinessTypeMapper;
 import com.mdsl.repository.BusinessTypeRepository;
+import com.mdsl.utils.MakerCheckerEngine;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class BusinessTypeServices {
 	@Autowired
 	private BusinessTypeRepository businessTypeRepository;
 	@Autowired
 	private BusinessTypeMapper businessTypeMapper;
-	
+    private final MakerCheckerEngine makerCheckerEngine;
+
 	public List<BusinessTypeResponseDto> getAllBusinessType() {
 		List<BusinessType> allBusinessType = businessTypeRepository.findAll();
 		List<BusinessTypeResponseDto> allBusinessTypeResponseDto = new ArrayList<BusinessTypeResponseDto>();
@@ -29,6 +34,9 @@ public class BusinessTypeServices {
 	}
 	
 	public BusinessTypeResponseDto saveBusinessType(BusinessType businessType) {
+		if (makerCheckerEngine.processIfRequired(businessType, BusinessTypeServices.class.getName(), "saveBusinessType", "")){
+			return null;
+		}
 		businessTypeRepository.save(businessType);
 		return businessTypeMapper.toDto(businessType);
 	}

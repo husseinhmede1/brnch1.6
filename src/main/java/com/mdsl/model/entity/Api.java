@@ -102,7 +102,4 @@ public class Api {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "UPDATED_BY")
 	private User updatedBy;
-
-	@Column(name="INST_ID")
-	private Integer instId;
 }

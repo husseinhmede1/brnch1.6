@@ -35,6 +35,7 @@ import com.mdsl.repository.InstitutionRepository;
 import com.mdsl.repository.ManualMerchantTransactionRepository;
 import com.mdsl.repository.SystemCodeRepository;
 import com.mdsl.repository.TerminalRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.PaginationCommonCode;
 import com.mdsl.utils.ResponseCode;
 
@@ -67,6 +68,7 @@ public class ManualMerchantTransactionService {
 
 	@Autowired
 	private ManualMerchantTransactionMapper manualMerchantTransactionMapper;
+    private final MakerCheckerEngine makerCheckerEngine;
 
 	public ResponseEntity<PaginationResponseDto> getAllTransactions(
 			ManualMerchantTransactionRequestDto manualMerchantTransactionRequestDto) {
@@ -142,7 +144,6 @@ public class ManualMerchantTransactionService {
 
 		Entities entities = entitiesRepository.findByEntityIdAndInstitution(manualMerchantTransactionRequestDto.getOutletId(),institution)
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_ENTITY_NOT_FOUND, HttpStatus.NOT_FOUND));
-		System.out.println("institution.getInstitutionId()>>>>>>>>"+institution.getInstitutionId());
 
 		if (manualMerchantTransactionRequestDto.getInstitutionId() != null) {
 			terminal = terminalRepository
@@ -180,7 +181,9 @@ public class ManualMerchantTransactionService {
 			manualMerchantTransaction.setInstitution(institution);
 			manualMerchantTransaction.setReasonCode(systemCode);
 			manualMerchantTransaction.setPan(manualMerchantTransactionRequestDto.getCardNumber());
-
+			if (makerCheckerEngine.processIfRequired(manualMerchantTransactionRequestDto, ManualMerchantTransactionService.class.getName(), "saveOrUpdateManualMerchantTransaction", "")) {
+				return null;
+			}
 				manualMerchantTransaction = manualMerchantTransactionRepository.save(manualMerchantTransaction);
 		} else {
 			ArrayList<Integer> merchantTransactionIds = new ArrayList<Integer>();
@@ -214,7 +217,9 @@ public class ManualMerchantTransactionService {
 			manualMerchantTransaction1.setInstitution(institution);
 			manualMerchantTransaction1.setReasonCode(systemCode);
 			manualMerchantTransaction1.setPan(manualMerchantTransactionRequestDto.getCardNumber());
-
+			if (makerCheckerEngine.processIfRequired(manualMerchantTransactionRequestDto, ManualMerchantTransactionService.class.getName(), "saveOrUpdateManualMerchantTransaction", "")) {
+				return null;
+			}
 			manualMerchantTransaction = manualMerchantTransactionRepository.save(manualMerchantTransaction1);
 		}
 
@@ -223,6 +228,9 @@ public class ManualMerchantTransactionService {
 	public void deleteManualMerchantTransaction(int id) throws Exception {
 		manualMerchantTransactionRepository.findById(id).orElseThrow(
 				() -> new BusinessException(ResponseCode.MMT_NOT_FOUND, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(id, ManualMerchantTransactionService.class.getName(), "deleteManualMerchantTransaction", "")) {
+			return;
+		}
 		manualMerchantTransactionRepository.deleteById(id);
 	}
 

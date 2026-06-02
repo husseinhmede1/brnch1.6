@@ -61,4 +61,7 @@ public class ScheduleJobRequestDto {
 	@Min(value=0, message=ResponseCode.CFG_INVALID_STOP_TASK_MINUTE)
 	@Max(value=60, message=ResponseCode.CFG_INVALID_STOP_TASK_MINUTE)
 	private Integer stopTaskMinute;
+	
+	private String instId;
+	private String remoteAddress;
 }

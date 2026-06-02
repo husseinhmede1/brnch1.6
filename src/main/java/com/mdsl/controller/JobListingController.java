@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
+import com.mdsl.model.dto.request.DeleteJobRequestDto;
 import com.mdsl.model.dto.request.JobRequestDto;
 import com.mdsl.model.dto.request.ScheduleJobRequestDto;
 import com.mdsl.model.dto.response.JobResponseDto;
@@ -72,14 +73,18 @@ public class JobListingController {
 	@ApiOperation(value = "Save Job")
 	public ResponseEntity<JobResponseDto> saveJob(@Valid @RequestBody JobRequestDto jobRequestDto, BindingResult bindingResult, HttpServletRequest request) {
 		Validations.validate(bindingResult);
-		return ResponseEntity.ok(jobService.saveJob(jobRequestDto, String.valueOf(request.getHeader("instId")), request.getRemoteAddr()));
+		jobRequestDto.setInstId(String.valueOf(request.getHeader("instId")));
+		jobRequestDto.setRemoteAddress(request.getRemoteAddr());
+		return ResponseEntity.ok(jobService.saveJob(jobRequestDto));
 	}
 
 	@PostMapping("/schedule")
 	@ApiOperation(value = "Schedule Job")
 	public ResponseEntity<JobResponseDto> scheduleJob(@Valid @RequestBody ScheduleJobRequestDto scheduleJobRequestDto, BindingResult bindingResult, HttpServletRequest request) {
 		Validations.validate(bindingResult);
-		return ResponseEntity.ok(jobService.scheduleJob(scheduleJobRequestDto, String.valueOf(request.getHeader("instId")), request.getRemoteAddr()));
+		scheduleJobRequestDto.setInstId(String.valueOf(request.getHeader("instId")));
+		scheduleJobRequestDto.setRemoteAddress(request.getRemoteAddr());
+		return ResponseEntity.ok(jobService.scheduleJob(scheduleJobRequestDto));
 	}
 	
 	@PostMapping("/start/{jobId}")
@@ -98,15 +103,22 @@ public class JobListingController {
 	@ApiOperation(value = "Enable/Disable Job")
 	public void enableDisableJob(@Valid @RequestBody ChangeStatusRequestDto changeJobStatusRequestDTO, BindingResult bindingResult, HttpServletRequest request) {
 		Validations.validate(bindingResult);
-		jobService.enableDisableJob(changeJobStatusRequestDTO, request.getRemoteAddr(), String.valueOf(request.getHeader("instId")));
+		changeJobStatusRequestDTO.setInstId(String.valueOf(request.getHeader("instId")));
+		changeJobStatusRequestDTO.setRemoteAddress(request.getRemoteAddr());
+		jobService.enableDisableJob(changeJobStatusRequestDTO);
 	}
 	
 	@DeleteMapping("/{id}")
 	@ApiOperation(value = "Delete Job")
-	public void deleteJob(@PathVariable(value = "id") int jobId, HttpServletRequest request) {
-		jobService.deleteJob(jobId, String.valueOf(request.getHeader("instId")), request.getRemoteAddr());
+	public void deleteJob(@PathVariable("id") int jobId, HttpServletRequest request) {
+
+	    DeleteJobRequestDto dto = new DeleteJobRequestDto();
+	    dto.setJobId(jobId);
+	    dto.setInstId(request.getHeader("instId"));
+	    dto.setRemoteAddress(request.getRemoteAddr());
+
+	    jobService.deleteJob(dto);
 	}
-	
 	@GetMapping("/job-monitoring")
 	@ApiOperation(value = "Job Monitoring ",response = JobScheduledMonitoringResponseDto.class)
 	public ResponseEntity<List<JobScheduledMonitoringResponseDto>> getJobMonitoring(HttpServletRequest request) {

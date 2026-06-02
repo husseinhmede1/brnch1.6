@@ -4,6 +4,7 @@ import com.mdsl.model.dto.response.ActivityModuleResponseDto;
 import com.mdsl.model.dto.response.ModuleActivityResponseDto;
 import com.mdsl.model.objects.FrontUrl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -11,10 +12,13 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ModuleService {
 
     private final JdbcTemplate jdbcTemplate;
+
+    public ModuleService(@Qualifier("appJdbcTemplate") JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     private static final String MODULES_BY_USER_SQL =
         "SELECT a.ACTIVITY_ID, a.ACTIVITY_CODE, a.ACTIVITY_DESC, " +
@@ -134,7 +138,6 @@ public class ModuleService {
         return (value != null && !value.isEmpty()) ? value.charAt(0) : '0';
     }
 
-    /** Flat holder used while processing result set rows. */
     private static class ActivityRow {
         int activityId;
         String activityCode;

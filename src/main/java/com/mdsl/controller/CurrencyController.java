@@ -70,10 +70,7 @@ public class CurrencyController {
 		Validations.validate(bindingResult);
 		try {
 			CurrencyResponseDto currencyResponseDto = currencyService.saveOrUpdateCurrency(currency);
-			if (Objects.nonNull(currencyResponseDto))
-				return ResponseEntity.ok(currencyResponseDto);
-			else
-				return ResponseEntity.ok("Sent for approval");
+			return ResponseEntity.ok(currencyResponseDto);
 		} catch (BusinessException e) {
 		    throw new BusinessException (e.getMessage(), e.getHttpStatus());
 		} catch (Exception e) {

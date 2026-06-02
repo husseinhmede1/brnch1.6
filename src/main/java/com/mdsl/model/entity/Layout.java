@@ -44,7 +44,7 @@ public class Layout {
 	private Integer fileId;
 	
 	@Column(name = "INST_ID")			
-	private Integer instId;
+	private String instId;
 	
 	@Column(name="STATUS")
 	private String status;

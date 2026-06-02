@@ -28,6 +28,7 @@ import com.mdsl.repository.BankFilesOutputRepository;
 import com.mdsl.repository.InstitutionRepository;
 import com.mdsl.repository.OutputFileTemplateDetailsRepository;
 import com.mdsl.repository.OutputFileTemplateHdrRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
 import lombok.RequiredArgsConstructor;
@@ -44,7 +45,8 @@ public class OutputFileTemplateHdrService {
 	private final OutputFileTemplateHdrMapper outputFileTemplateHdrMapper;
 	private final OutputFileTemplateDetailsMapper outputFileTemplateDetailsMapper;
 	private final BankFilesOutputMapper bankFilesOutputMapper;
-	
+    private final MakerCheckerEngine makerCheckerEngine;
+
 	public List<OutputFileTemplateHdrResponseDto> getAllOutputFileTemplateHdrsByInstitution(String institutionId) {
 		List<OutputFileTemplateHdrResponseDto> allOutputFileTemplateResponseDtos = new ArrayList<OutputFileTemplateHdrResponseDto>();
         Institution institution = this.institutionRepository.findById(institutionId.trim()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INSTITUTION_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
@@ -100,7 +102,9 @@ public class OutputFileTemplateHdrService {
             savedOutputFileTemplateHdr = this.outputFileTemplateHdrRepository.save(saveOutputFileTemplateHdr);
             
             List<BankFilesOutput> bankFilesOutputs = this.bankFilesOutputRepository.findByOutputTemplateHdrId(savedOutputFileTemplateHdr.getOutputTemplateHdrId());
-            
+       		if (makerCheckerEngine.processIfRequired(outputFileTemplateHdrRequestDto, OutputFileTemplateHdrService.class.getName(), "saveOutputFileTemplateHdr", "")) {
+    			return null;
+    		}
             for(BankFilesOutput bankFilesOutput : bankFilesOutputs) {
             	bankFilesOutput.setOutputFileType(savedOutputFileTemplateHdr.getOutputFileType());
             	bankFilesOutput.setOutputFileTypeAbbr(savedOutputFileTemplateHdr.getOutputFileTypeAbbr());
@@ -116,6 +120,9 @@ public class OutputFileTemplateHdrService {
             saveOutputFileTemplateHdr = this.outputFileTemplateHdrMapper.toEntity(outputFileTemplateHdrRequestDto);
             saveOutputFileTemplateHdr.setCreatedBy(Integer.valueOf(userDetails.getId()));
             saveOutputFileTemplateHdr.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+       		if (makerCheckerEngine.processIfRequired(outputFileTemplateHdrRequestDto, OutputFileTemplateHdrService.class.getName(), "saveOutputFileTemplateHdr", "")) {
+    			return null;
+    		}
             savedOutputFileTemplateHdr = this.outputFileTemplateHdrRepository.save(saveOutputFileTemplateHdr);
         }
         
@@ -196,6 +203,9 @@ public class OutputFileTemplateHdrService {
     	OutputFileTemplateHdr outputFileTemplateHdr = this.outputFileTemplateHdrRepository.findById(id).orElseThrow(() -> new BusinessException(ResponseCode.CFG_OUTPUT_TEMPLATE_HDR_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
     	this.bankFilesOutputRepository.deleteByOutputTemplateHdrId(outputFileTemplateHdr.getOutputTemplateHdrId());
     	outputFileTemplateDetailsRepository.deleteByOutputTemplateHdrId(outputFileTemplateHdr.getOutputTemplateHdrId());
+   		if (makerCheckerEngine.processIfRequired(id, OutputFileTemplateHdrService.class.getName(), "deleteOutputFileTemplateHdr", "")) {
+			return;
+		}
     	this.outputFileTemplateHdrRepository.delete(outputFileTemplateHdr);
     }
 }

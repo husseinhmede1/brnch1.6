@@ -1,24 +1,44 @@
 package com.mdsl.service;
 
-import com.mdsl.exceptionHandling.BusinessException;
-import com.mdsl.model.dto.request.ChangeStatusRequestDto;
-import com.mdsl.model.dto.request.NonActivityPackageDetailsRequestDto;
-import com.mdsl.model.dto.response.NonActivityPackageDetailsResponseDto;
-import com.mdsl.model.entity.*;
-import com.mdsl.model.entity.Currency;
-import com.mdsl.model.mapper.NonActivityPackageDetailsMapper;
-import com.mdsl.repository.*;
-import com.mdsl.utils.ResponseCode;
-import com.mdsl.utils.enumerations.ChargeTypemasterEnum;
-import com.mdsl.utils.enumerations.CodePrefixEnum;
-import lombok.RequiredArgsConstructor;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import javax.validation.Valid;
+
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import javax.validation.Valid;
-import java.util.*;
+import com.mdsl.exceptionHandling.BusinessException;
+import com.mdsl.model.dto.request.ChangeStatusRequestDto;
+import com.mdsl.model.dto.request.DeleteNonActivityPackageDetailsRequestDto;
+import com.mdsl.model.dto.request.NonActivityPackageDetailsRequestDto;
+import com.mdsl.model.dto.response.NonActivityPackageDetailsResponseDto;
+import com.mdsl.model.entity.Currency;
+import com.mdsl.model.entity.Entities;
+import com.mdsl.model.entity.Institution;
+import com.mdsl.model.entity.NonActivityPackage;
+import com.mdsl.model.entity.NonActivityPackageDetails;
+import com.mdsl.model.entity.SystemCode;
+import com.mdsl.model.entity.TerminalTypes;
+import com.mdsl.model.mapper.NonActivityPackageDetailsMapper;
+import com.mdsl.repository.CurrencyRepository;
+import com.mdsl.repository.EntitiesRepository;
+import com.mdsl.repository.InstitutionRepository;
+import com.mdsl.repository.NonActivityPackageDetailsRepository;
+import com.mdsl.repository.NonActivityPackageRepository;
+import com.mdsl.repository.SystemCodeRepository;
+import com.mdsl.repository.TerminalTypesRepository;
+import com.mdsl.utils.MakerCheckerEngine;
+import com.mdsl.utils.ResponseCode;
+import com.mdsl.utils.enumerations.ChargeTypemasterEnum;
+import com.mdsl.utils.enumerations.CodePrefixEnum;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +58,7 @@ public class NonActivityPackageDetailsService {
 	private final EntitiesRepository entitiesRepository;
 	
 	private final SystemCodeRepository systemCodeRepository;
+    private final MakerCheckerEngine makerCheckerEngine;
 
 	public List<NonActivityPackageDetailsResponseDto> getAllNonActivityPackageDetails() {
 		List<NonActivityPackageDetailsResponseDto> allNonActivityPackageDetailsCodesDto = new ArrayList<>();
@@ -248,6 +269,9 @@ public class NonActivityPackageDetailsService {
 			nonActivityPackageDetails.setTerminalTypes(terminalTypes);
 			nonActivityPackageDetails.setAssignedTransaction(null);
             nonActivityPackageDetails.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
+    		if (makerCheckerEngine.processIfRequired(nonActivityPackageDetailsRequestDto, NonActivityPackageDetailsService.class.getName(), "saveOrUpdateNonActivityPackageDetails", "")) {
+    			return null;
+    		}
             nonActivityPackageDetails = nonActivityPackageDetailsRepository.save(nonActivityPackageDetails);
 		}
 
@@ -263,7 +287,6 @@ public class NonActivityPackageDetailsService {
 			pkg.setStartDate(nonActivityPackageDetailsRequestDto.getStartDate());
 			pkg.setMaxAmount(nonActivityPackageDetailsRequestDto.getMaxAmount());
 			pkg.setNumberOfInstallments(nonActivityPackageDetailsRequestDto.getNumberOfInstallments());
-//			pkg.setPackageLine(nonActivityPackageDetailsRequestDto.getPackageLine());
 			pkg.setStatus(nonActivityPackageDetailsRequestDto.getStatus());
 			pkg.setInstitution(institution);
 			pkg.setNonActivityPackageEntity(nonActivityPackage);
@@ -271,10 +294,11 @@ public class NonActivityPackageDetailsService {
 			pkg.setCurrency(currency);
 			pkg.setFrequency(frequencyMaster!=null?frequencyMaster.getCodeValue():null);
 			pkg.setChargeMaster(chargeTypeMaster.getCodeValue());
-//			pkg.setCardScheme(cardScheme);
 			pkg.setTerminalTypes(terminalTypes);
 			pkg.setAssignedTransaction(null);
-		//	pkg.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
+	   		if (makerCheckerEngine.processIfRequired(nonActivityPackageDetailsRequestDto, NonActivityPackageDetailsService.class.getName(), "saveOrUpdateNonActivityPackageDetails", "")) {
+    			return null;
+    		}
 			nonActivityPackageDetails = nonActivityPackageDetailsRepository.save(pkg);
 		}
 
@@ -293,15 +317,18 @@ public class NonActivityPackageDetailsService {
 		}
 	}
 
-	public String deleteNonActivityPackageDetails(int id, String instId) {
+	public String deleteNonActivityPackageDetails(DeleteNonActivityPackageDetailsRequestDto deleteNonActivityPackageDetailsRequestDto) {
 
-		NonActivityPackageDetails nonActivityPackageDetails = nonActivityPackageDetailsRepository.findById(id)
+		NonActivityPackageDetails nonActivityPackageDetails = nonActivityPackageDetailsRepository.findById(deleteNonActivityPackageDetailsRequestDto.getId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_ACTIVITY, HttpStatus.NOT_FOUND));
 
 		List<Entities> entities = entitiesRepository
-				.findByNonactivityFeePKGEntity_PackageIdAndInstitution_institutionId(nonActivityPackageDetails.getNonActivityPackageEntity().getPackageId(),instId,Sort.by(Sort.Direction.ASC, "entityId"));
+				.findByNonactivityFeePKGEntity_PackageIdAndInstitution_institutionId(nonActivityPackageDetails.getNonActivityPackageEntity().getPackageId(),deleteNonActivityPackageDetailsRequestDto.getInstId(),Sort.by(Sort.Direction.ASC, "entityId"));
 		if (entities.isEmpty()) {
-			nonActivityPackageDetailsRepository.deleteById(id);
+	   		if (makerCheckerEngine.processIfRequired(deleteNonActivityPackageDetailsRequestDto, NonActivityPackageDetailsService.class.getName(), "deleteNonActivityPackageDetails", "")) {
+				return null;
+			}
+			nonActivityPackageDetailsRepository.deleteById(deleteNonActivityPackageDetailsRequestDto.getId());
 			return "Non Activity Fee Package Detail Deleted Successfully";
 		} else {
 			throw new BusinessException(ResponseCode.REFERENCE_EXISTS, HttpStatus.NOT_FOUND);
@@ -314,6 +341,9 @@ public class NonActivityPackageDetailsService {
 				.findById(changeStatusRequestDto.getId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_ACTIVITY, HttpStatus.NOT_FOUND));
 		nonActivityPackageDetails.setStatus(changeStatusRequestDto.getStatus().charAt(0));
+   		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, NonActivityPackageDetailsService.class.getName(), "changeStatus", "")) {
+			return;
+		}
 		nonActivityPackageDetailsRepository.save(nonActivityPackageDetails);
 	}
 

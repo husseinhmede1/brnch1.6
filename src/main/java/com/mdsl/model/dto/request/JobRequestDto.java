@@ -57,6 +57,9 @@ public class JobRequestDto {
 	@Pattern(regexp = "[0|1]", message = ResponseCode.CFG_INVALID_ENABLED)
 	private String status;
 	
+	private String instId;
+	private String remoteAddress;
+	
 	@Valid
 	private List<JobDefinitionTaskRequestDto> jobDefinitionTask;
 }

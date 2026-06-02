@@ -58,7 +58,7 @@ public class APIService {
 	public PageableApiResponseDto getApi (String object, int instId, PaginationRequestDto paginationRequestDto){
 		Pageable pageable = PageRequest.of(paginationRequestDto.getOffset(), paginationRequestDto.getPageSize(), paginationRequestDto.getAsc().trim().equalsIgnoreCase("true") ? Sort.by(paginationRequestDto.getSortBy()).ascending(): Sort.by(paginationRequestDto.getSortBy()).descending());
 		List<ApiResponseDto> listOfApis = new ArrayList<ApiResponseDto>();
-		Page<Api> apis = apiRepository.findByInstIdAndAllowStpAndApiDescIgnoreCase(instId, AllowStpEnum.ALLOW_STP.getValue(), pageable, object.trim());
+		Page<Api> apis = apiRepository.findByInstitutionAndAllowStpAndApiDescIgnoreCase(instId, AllowStpEnum.ALLOW_STP.getValue(), pageable, object.trim());
 		PageableApiResponseDto pageableApiResponseDto = new PageableApiResponseDto();
 		apis.forEach((api)->{
 			listOfApis.add(apiMapper.toApi(api));
@@ -75,7 +75,7 @@ public class APIService {
 	public PageableApiResponseDto getAllApis (int instId, PaginationRequestDto paginationRequestDto){
 		Pageable pageable = PageRequest.of(paginationRequestDto.getOffset(), paginationRequestDto.getPageSize(), paginationRequestDto.getAsc().trim().equalsIgnoreCase("true") ? Sort.by(paginationRequestDto.getSortBy()).ascending(): Sort.by(paginationRequestDto.getSortBy()).descending());
 		List<ApiResponseDto> listOfApis = new ArrayList<ApiResponseDto>();
-		Page<Api> apis = apiRepository.findByInstIdAndAllowStp(instId, AllowStpEnum.ALLOW_STP.getValue(), pageable);
+		Page<Api> apis = apiRepository.findByInstitutionAndAllowStp(instId, AllowStpEnum.ALLOW_STP.getValue(), pageable);
 		PageableApiResponseDto pageableApiResponseDto = new PageableApiResponseDto();
 		apis.forEach((api)->{
 			listOfApis.add(apiMapper.toApi(api));
@@ -94,7 +94,7 @@ public class APIService {
 		Validations.isEmpty(apiListRequestDtos);
 
 		apiListRequestDtos.forEach((apiDto) -> {
-			Api api = apiRepository.findByInstIdAndApiId(instId, apiDto.getApiId()).orElseThrow(()->new BusinessException(ResponseCode.CFG_INVALID_API_LIST, HttpStatus.NOT_FOUND));
+			Api api = apiRepository.findByInstitutionAndApiId(instId, apiDto.getApiId()).orElseThrow(()->new BusinessException(ResponseCode.CFG_INVALID_API_LIST, HttpStatus.NOT_FOUND));
 
 			if(api.getAllowStp().toString().trim().equalsIgnoreCase(AllowStpEnum.NOT_ALLOW_STP.getValue())) {
 				throw new BusinessException(ResponseCode.CFG_INVALID_API_LIST_STP,HttpStatus.BAD_REQUEST);

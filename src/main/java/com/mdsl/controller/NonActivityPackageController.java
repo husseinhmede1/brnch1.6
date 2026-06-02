@@ -3,14 +3,10 @@ package com.mdsl.controller;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 
-import com.mdsl.utils.ResponseCode;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -25,12 +21,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
+import com.mdsl.model.dto.request.DeleteNonActivityPackageRequestDto;
 import com.mdsl.model.dto.request.NonActivityPackageEntityMappingRequestDto;
 import com.mdsl.model.dto.request.NonActivityPackageRequestDto;
 import com.mdsl.model.dto.response.EntitiesResponseDto;
 import com.mdsl.model.dto.response.NonActivityPackageResponseDto;
 import com.mdsl.service.NonActivityPackageService;
+import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.Validations;
+
+import lombok.RequiredArgsConstructor;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -81,20 +81,35 @@ public class NonActivityPackageController {
 			throw new BusinessException(ResponseCode.VAL_ERROR_OCCURRED,HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-
+	
 	@DeleteMapping("/{id}/{instId}")
-	public ResponseEntity<String> deleteNonActivityPackage(@PathVariable("id") String id,@PathVariable("instId") String instId, HttpServletRequest request) {
-		try {
-			nonActivityPackageService.deleteNonActivityPackage(id,instId);
-			String message = "An item is deleted with id : " + id;
-			return ResponseEntity.ok(message);
-		} catch(BusinessException ex){
-			logger.error("@UserController#deleteNonActivityPackage "+ex.toString());
-			throw new BusinessException(ex.getMessage(),ex.getHttpStatus());
-		} catch(Exception ex){
-			logger.error("@UserController#deleteNonActivityPackage "+ex.toString());
-			throw new BusinessException(ResponseCode.VAL_ERROR_OCCURRED,HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+	public ResponseEntity<String> deleteNonActivityPackage(
+	        @PathVariable("id") String id,
+	        @PathVariable("instId") String instId,
+	        HttpServletRequest request) {
+
+	    DeleteNonActivityPackageRequestDto dto = new DeleteNonActivityPackageRequestDto();
+	    dto.setId(id);
+	    dto.setInstId(instId);
+	    dto.setRemoteAddress(request.getRemoteAddr());
+
+	    try {
+	        nonActivityPackageService.deleteNonActivityPackage(dto);
+
+	        String message = "An item is deleted with id : " + dto.getId();
+	        return ResponseEntity.ok(message);
+
+	    } catch (BusinessException ex) {
+	        logger.error("@UserController#deleteNonActivityPackage {}", ex.toString());
+	        throw new BusinessException(ex.getMessage(), ex.getHttpStatus());
+
+	    } catch (Exception ex) {
+	        logger.error("@UserController#deleteNonActivityPackage {}", ex.toString());
+	        throw new BusinessException(
+	                ResponseCode.VAL_ERROR_OCCURRED,
+	                HttpStatus.INTERNAL_SERVER_ERROR
+	        );
+	    }
 	}
 
 	@PostMapping("/status-change")
@@ -121,6 +136,6 @@ public class NonActivityPackageController {
 	public ResponseEntity<@Valid NonActivityPackageEntityMappingRequestDto> mapPackageWithEntity(
 			@Valid @RequestBody NonActivityPackageEntityMappingRequestDto requestDto, BindingResult bindingResult, HttpServletRequest request) {
 		Validations.validate(bindingResult);
-		return ResponseEntity.ok(nonActivityPackageService.mapPackageWithEntity(requestDto, requestDto.getInstId()));
+		return ResponseEntity.ok(nonActivityPackageService.mapPackageWithEntity(requestDto));
 	}
 }

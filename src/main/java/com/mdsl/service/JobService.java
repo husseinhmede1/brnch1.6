@@ -45,6 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
+import com.mdsl.model.dto.request.DeleteJobRequestDto;
 import com.mdsl.model.dto.request.JobDefinitionTaskRequestDto;
 import com.mdsl.model.dto.request.JobRequestDto;
 import com.mdsl.model.dto.request.JobTaskParametersRequestDto;
@@ -81,6 +82,7 @@ import com.mdsl.repository.JobValidatorRepository;
 import com.mdsl.repository.SystemCodeRepository;
 import com.mdsl.repository.UserRepository;
 import com.mdsl.utils.CronJob;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.Validations;
 import com.mdsl.utils.enumerations.JobFrequencyEnum;
@@ -109,6 +111,7 @@ public class JobService {
 	private final JobThreadTrackerRepository jobThreadTrackerRepository;
 	private final JobDefinitionTaskRepository jobDefinitionTaskRepository;
 	private final InstitutionRepository institutionRepository;
+    private final MakerCheckerEngine makerCheckerEngine;
 
 
 	private final UserService userService;
@@ -119,7 +122,8 @@ public class JobService {
 	private final BKDJobTaskParameterMapper jobTaskParameterMapper;
 
 	private static final Logger logger = LoggerFactory.getLogger(JobService.class);
-//	private static Base24ETLEngineLauncher base24ETLEngineLauncher = new Base24ETLEngineLauncher();
+	//private static Base24ETLEngineLauncher base24ETLEngineLauncher = new Base24ETLEngineLauncher();
+
 
 	@Bean("cronJob")
 	public CronJob createCronJob() {
@@ -257,7 +261,7 @@ public class JobService {
 	 * The job name is unique per institution
 	 * The transactions are logged in table MD_ADT_BKD_LOG
 	 */
-	public JobResponseDto saveJob(JobRequestDto jobRequestDto, String instId,  String remoteAddress) {
+	public JobResponseDto saveJob(JobRequestDto jobRequestDto) {
 		String action = "";
 		String description = "";
 		Job saveJob;
@@ -294,27 +298,30 @@ public class JobService {
 		}
 
 		if (Objects.isNull(jobRequestDto.getJobId()) || jobRequestDto.getJobId() == 0) {// create job definition
-			if (jobRepository.existsByInstitutionAndJobNameIgnoreCase(instId, jobRequestDto.getJobName())) {
+			if (jobRepository.existsByInstitutionAndJobNameIgnoreCase(jobRequestDto.getInstId(), jobRequestDto.getJobName())) {
 				throw new BusinessException(ResponseCode.VAL_JOB_NAME_EXISTS, HttpStatus.CONFLICT);
 			}
 
 			saveJob = jobMapper.toEntity(jobRequestDto);
-			saveJob.setInstitution(instId);
+			saveJob.setInstitution(jobRequestDto.getInstId());
 			saveJob.setStatus(jobRequestDto.getStatus());
 			saveJob.setEnabled(String.valueOf(StatusEnum.DISABLED.getValue()));
 			saveJob.setCreatedBy(userDetails.getId());
 			saveJob.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+			if (makerCheckerEngine.processIfRequired(jobRequestDto, JobService.class.getName(), "saveJob", "")) {
+				return null;
+			}
 			saveJob = jobRepository.save(saveJob);
 
 			action = "create";
 			description = "Created Job: [" + jobRequestDto.getJobName() + " - " + jobRequestDto.getJobDescription() + "]";
 		} else {// update
-			Job job = jobRepository.findByInstitutionAndJobId(instId, jobRequestDto.getJobId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_JOB, HttpStatus.NOT_FOUND));
+			Job job = jobRepository.findByInstitutionAndJobId(jobRequestDto.getInstId(), jobRequestDto.getJobId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_JOB, HttpStatus.NOT_FOUND));
 			if (job.getEnabled().equalsIgnoreCase(String.valueOf(StatusEnum.ENABLED.getValue()))) {
 				throw new BusinessException(ResponseCode.CFG_JOB_RUNNING, HttpStatus.BAD_REQUEST);
 			}
 			saveJob = jobMapper.toEntity(jobRequestDto);
-			saveJob.setInstitution(instId);
+			saveJob.setInstitution(jobRequestDto.getInstId());
 			saveJob.setEnabled(String.valueOf(StatusEnum.DISABLED.getValue()));
 			saveJob.setStatus(jobRequestDto.getStatus());
 			saveJob.setLastExecId(job.getLastExecId());
@@ -333,6 +340,9 @@ public class JobService {
 
 			//This is added for maker checker
 			int jobId=saveJob.getJobId();
+			if (makerCheckerEngine.processIfRequired(jobRequestDto, JobService.class.getName(), "saveJob", "")) {
+				return null;
+			}
 			saveJob = jobRepository.save(saveJob);
 			saveJob.setJobId(jobId);
 
@@ -413,10 +423,10 @@ public class JobService {
 	 * Enables/disables a job by changing the status
 	 * Logs the transaction in table MD_ADT_BKD_LOG
 	 */
-	public void enableDisableJob(ChangeStatusRequestDto changeJobStatusRequestDto, String remoteAddress, String instId) {
+	public void enableDisableJob(ChangeStatusRequestDto changeJobStatusRequestDto) {
 
 		UserDetailsImpl userDetails = commonService.getLoggedInUser();
-		Job job = jobRepository.findByInstitutionAndJobId(instId, changeJobStatusRequestDto.getId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_JOB, HttpStatus.NOT_FOUND));
+		Job job = jobRepository.findByInstitutionAndJobId(changeJobStatusRequestDto.getInstId(), changeJobStatusRequestDto.getId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_JOB, HttpStatus.NOT_FOUND));
 
 		if (job.getEnabled().equalsIgnoreCase(String.valueOf(StatusEnum.ENABLED.getValue()))) {
 			throw new BusinessException(ResponseCode.CFG_JOB_RUNNING, HttpStatus.BAD_REQUEST);
@@ -425,8 +435,10 @@ public class JobService {
 		if (changeJobStatusRequestDto.getStatus().equalsIgnoreCase(String.valueOf(job.getStatus()))) {
 			throw new BusinessException(ResponseCode.CFG_STATUS_NOT_CHANGED, HttpStatus.CONFLICT);
 		}
-
-		jobRepository.updateJobStatus(changeJobStatusRequestDto.getId(), changeJobStatusRequestDto.getStatus().charAt(0), instId, userDetails.getId());
+		if (makerCheckerEngine.processIfRequired(changeJobStatusRequestDto, JobService.class.getName(), "enableDisableJob", "")) {
+			return;
+		}
+		jobRepository.updateJobStatus(changeJobStatusRequestDto.getId(), changeJobStatusRequestDto.getStatus().charAt(0), changeJobStatusRequestDto.getInstId(), userDetails.getId());
 
 		if (job.getEnabled().equalsIgnoreCase(String.valueOf(StatusEnum.ENABLED.getValue()))) {
 			job.setEnabled(String.valueOf(StatusEnum.DISABLED.getValue()));
@@ -450,10 +462,10 @@ public class JobService {
 	 * If records are available in MD_JOB_EXECUTION_LOG or MD_JOB_UNDER_EXEC, job cannot be deleted
 	 * Logs the transaction in table MD_ADT_BKD_LOG
 	 */
-	public void deleteJob(int jobId, String instId, String remoteAddress) {
+	public void deleteJob(DeleteJobRequestDto deleteJobRequestDto) {
 
 		UserDetailsImpl userDetails = commonService.getLoggedInUser();
-		Job job = jobRepository.findByInstitutionAndJobId(instId, jobId).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_JOB, HttpStatus.NOT_FOUND));
+		Job job = jobRepository.findByInstitutionAndJobId(deleteJobRequestDto.getInstId(), deleteJobRequestDto.getJobId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_JOB, HttpStatus.NOT_FOUND));
 
 		if (job.getEnabled().equalsIgnoreCase(String.valueOf(StatusEnum.ENABLED.getValue()))) {
 			throw new BusinessException(ResponseCode.CFG_JOB_RUNNING, HttpStatus.BAD_REQUEST);
@@ -462,15 +474,17 @@ public class JobService {
 		if (jobExecutionLogRepository.existsByJob(job)) {
 			throw new BusinessException (ResponseCode.VAL_CANNOT_DELETE_JOB, HttpStatus.NOT_ACCEPTABLE);
 		}
-
+		if (makerCheckerEngine.processIfRequired(deleteJobRequestDto, JobService.class.getName(), "deleteJob", "")) {
+			return;
+		}
 		try {
-			jobScheduledRepository.deleteByJobId(jobId);
+			jobScheduledRepository.deleteByJobId(deleteJobRequestDto.getJobId());
 
 			job.getJobDefinitionTask().forEach( (jobDefinitionTask) -> {
 				bkdJobTaskParameterRepository.deleteAllByJobTaskId(jobDefinitionTask.getJobTaskId());
 			});
 			jobDefinitionTaskRepository.deleteByJob(job.getJobId());
-			jobRepository.deleteById(jobId);
+			jobRepository.deleteById(deleteJobRequestDto.getJobId());
 		} catch (Exception e) {
 			logger.error("@JobService#deleteJob: " + e.getMessage());
 			throw new BusinessException (ResponseCode.VAL_JOB_EXECUTING_CANNOT_DELETE, HttpStatus.NOT_ACCEPTABLE);
@@ -488,10 +502,10 @@ public class JobService {
 	 * * * For monthly: inserts records for one month ahead
 	 * The transaction is logged in table MD_ADT_BKD_LOG
 	 */
-	public JobResponseDto scheduleJob (ScheduleJobRequestDto scheduleJobRequestDto, String instId, String remoteAddress) {
+	public JobResponseDto scheduleJob (ScheduleJobRequestDto scheduleJobRequestDto) {
 		UserDetailsImpl userDetails = commonService.getLoggedInUser();
 
-		Job job = jobRepository.findByInstitutionAndJobId(instId, scheduleJobRequestDto.getJobId()).orElseThrow(()-> new BusinessException(ResponseCode.CFG_INVALID_JOB, HttpStatus.NOT_FOUND));
+		Job job = jobRepository.findByInstitutionAndJobId(scheduleJobRequestDto.getInstId(), scheduleJobRequestDto.getJobId()).orElseThrow(()-> new BusinessException(ResponseCode.CFG_INVALID_JOB, HttpStatus.NOT_FOUND));
 		Job cloneJob = this.jobMapper.clone(job);	//This is for maker checker
 
 		if(job.getStatus().equalsIgnoreCase(String.valueOf(StatusEnum.DISABLED.getValue()))) {
@@ -570,6 +584,9 @@ public class JobService {
 
 		cloneJob.setUpdatedBy(userDetails.getId());
 		cloneJob.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
+		if (makerCheckerEngine.processIfRequired(scheduleJobRequestDto, JobService.class.getName(), "scheduleJob", "")) {
+			return null;
+		}
 		jobRepository.save(cloneJob);
 		try {
 			this.processJobSchedule(cloneJob, false);
@@ -1021,32 +1038,12 @@ public class JobService {
 	                throw new BusinessException(ResponseCode.CFG_INVALID_SERVICE_PARAMETER,HttpStatus.NOT_FOUND);
 	            }
 	            String parameterName =parameterNameMap.get(ps.getParameterId());
-//	            if (ParametersEnum.BIN.getValue().equalsIgnoreCase(parameterName)) {
-//	                bin = taskParameter.getParameterValue();
-//	            } else if (ParametersEnum.CARD_TYPE.getValue().equalsIgnoreCase(parameterName)) {
-//	                cardTypes = taskParameter.getParameterValue();
-//	            }
+
 	            dto.setParameterId(ps.getParameterId());
 	            dto.setParameterName(parameterName);
 	            jobTaskParamsResponseDtos.add(dto);
 	        }
 
-//	        if (convertCodeToId && Objects.nonNull(bin) && Objects.nonNull(cardTypes)) {
-//	            List<String> trimmedCodes =Arrays.stream(cardTypes.split(",")).map(String::trim).collect(Collectors.toList());
-//	            List<CardType> cardTypesList =cardTypeRepository.findByCardTypeCodeInAndBinValue(trimmedCodes, bin.trim());
-//	            Map<String, Integer> codeToIdMap =cardTypesList.stream().collect(Collectors.toMap(CardType::getCardTypeCode,CardType::getCardtypeId));
-//	            String cardTypeIds =trimmedCodes.stream()
-//	                            .map(codeToIdMap::get)
-//	                            .filter(Objects::nonNull)
-//	                            .map(String::valueOf)
-//	                            .collect(Collectors.joining(","));
-//
-//	            if (!cardTypeIds.isEmpty()) {
-//	                jobTaskParamsResponseDtos.stream()
-//	                        .filter(p ->ParametersEnum.CARD_TYPE.getValue().equalsIgnoreCase(p.getParameterName()))
-//	                        .findFirst()
-//	                        .ifPresent(p ->p.setParameterValue(cardTypeIds));}
-//	        }
 	        jobDefinitionTask.setJobTaskParametersResponseDto(jobTaskParamsResponseDtos);
 	    });
 	    return response;
@@ -1083,16 +1080,6 @@ public class JobService {
 						break;
 					}
 					String[] args = getEtlEngineArguments(scheduledJob, jobTask, instId, userId);
-//					int resultCode = base24ETLEngineLauncher.mainWithResult(args);
-//					if (resultCode != 0) {
-//						//jobRepository.setJobDone(job.getJobId(), '4', instId, userId);
-//						threadErrorMap.put(Thread.currentThread().getId()+"",'4');
-//						logger.debug("@JobService#runJob: ETL executed with errors, returned result code: " + resultCode + " for task " + jobTask.getTask().getTaskId());
-//						break;
-//					} else {
-//						threadErrorMap.put(Thread.currentThread().getId()+"",'3');
-//						logger.debug("@JobService#runJob: ETL executed successfully for task " + jobTask.getTask().getTaskId());
-//					}
 				}
 			} catch (Exception e) {
 				threadErrorMap.put(Thread.currentThread().getId()+"",'4');

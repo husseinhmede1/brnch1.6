@@ -23,8 +23,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
+import com.mdsl.model.dto.request.DeleteLayoutRequestDto;
 import com.mdsl.model.dto.request.LayoutRequestDto;
 import com.mdsl.model.dto.request.PaginationRequestDto;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.Validations;
 
@@ -42,6 +44,7 @@ public class LayoutService {
     private final LayoutDetailsMapper layoutDetailsMapper;
     private final FileMapper fileMapper;
     private final JobTaskRepository jobTaskRepository;
+    private final MakerCheckerEngine makerCheckerEngine;
 
     /*
      * Returns the list of all Layouts from table MD_CFG_LAYOUT and their
@@ -87,7 +90,7 @@ public class LayoutService {
      * MD_CFG_LAYOUT_DETAILS
      */
     public LayoutResponseDto getLayoutById(int layoutId, int instId) {
-        Layout layout = layoutRepository.findByInstIdAndLayoutId(instId, layoutId).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_LAYOUT_ID, HttpStatus.NOT_FOUND));
+        Layout layout = layoutRepository.findByInstIdAndLayoutId(String.valueOf(instId), layoutId).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_LAYOUT_ID, HttpStatus.NOT_FOUND));
         List<LayoutDetails> listLayoutDetails = layoutDetailsRepository.findByLayoutId(layoutId);
         return convertLayoutToLayoutResponseDto(layout, listLayoutDetails);
     }
@@ -151,7 +154,7 @@ public class LayoutService {
      * table MD_ADT_BKD_LOG
      */
     @Transactional
-    public LayoutResponseDto saveLayout(LayoutRequestDto layoutRequestDto, String remoteAddress, int instId) {
+    public LayoutResponseDto saveLayout(LayoutRequestDto layoutRequestDto) {
 
         String action = "";
         String description = "";
@@ -178,7 +181,7 @@ public class LayoutService {
         if (Objects.isNull(layoutRequestDto.getLayoutId()) || layoutRequestDto.getLayoutId() == 0) { //create layout
 
             //Validate that layout name is unique by institution
-            if (layoutRepository.existsByInstIdAndLayoutNameIgnoreCase(instId, layoutRequestDto.getLayoutName().trim())) {
+            if (layoutRepository.existsByInstIdAndLayoutNameIgnoreCase(layoutRequestDto.getInstId(), layoutRequestDto.getLayoutName().trim())) {
                 throw new BusinessException(ResponseCode.CFG_LAYOUT_NAME_ALREADY_EXISTS, HttpStatus.CONFLICT);
             }
 
@@ -190,19 +193,22 @@ public class LayoutService {
             saveLayout = layoutMapper.toEntity(layoutRequestDto);
             saveLayout.setCreatedBy(userDetails.getId());
             saveLayout.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-            saveLayout.setInstId(instId);
+            saveLayout.setInstId(layoutRequestDto.getInstId());
+			if (makerCheckerEngine.processIfRequired(layoutRequestDto, LayoutService.class.getName(), "saveLayout", "")) {
+				return null;
+			}
             saveLayout = layoutRepository.save(saveLayout);
 
             action = "create";
             description = "Created Input Output Layout : " + layoutRequestDto.getLayoutName();
 
         } else {// update layout
-            Layout layout = layoutRepository.findByInstIdAndLayoutId(instId, layoutRequestDto.getLayoutId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_LAYOUT_ID, HttpStatus.NOT_FOUND));
+            Layout layout = layoutRepository.findByInstIdAndLayoutId(layoutRequestDto.getInstId(), layoutRequestDto.getLayoutId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_LAYOUT_ID, HttpStatus.NOT_FOUND));
 
             //Validate that layout name is unique by institution
             List<Integer> layoutIds = new ArrayList<Integer>();
             layoutIds.add(layout.getLayoutId());
-            if (layoutRepository.existsByInstIdAndLayoutNameIgnoreCaseAndLayoutIdNotIn(instId, layoutRequestDto.getLayoutName().trim(), layoutIds)) {
+            if (layoutRepository.existsByInstIdAndLayoutNameIgnoreCaseAndLayoutIdNotIn(layoutRequestDto.getInstId(), layoutRequestDto.getLayoutName().trim(), layoutIds)) {
                 throw new BusinessException(ResponseCode.CFG_LAYOUT_NAME_ALREADY_EXISTS, HttpStatus.CONFLICT);
             }
 
@@ -212,12 +218,15 @@ public class LayoutService {
             }
 
             saveLayout = layoutMapper.toEntity(layoutRequestDto);
-            saveLayout.setInstId(instId);
+            saveLayout.setInstId(layoutRequestDto.getInstId());
             saveLayout.setLayoutName(layoutRequestDto.getLayoutName());
             saveLayout.setCreatedBy(layout.getCreatedBy());
             saveLayout.setCreatedDate(layout.getCreatedDate());
             saveLayout.setUpdatedBy(userDetails.getId());
             saveLayout.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
+			if (makerCheckerEngine.processIfRequired(layoutRequestDto, LayoutService.class.getName(), "saveLayout", "")) {
+				return null;
+			}
             saveLayout = layoutRepository.save(saveLayout);
 
             action = "update";
@@ -379,11 +388,11 @@ public class LayoutService {
      * table MD_ADT_BKD_LOG
      */
     @Transactional
-    public void changeLayoutStatus(ChangeStatusRequestDto changeLayoutStatusRequestDto, String remoteAddress, int instId) {
+    public void changeLayoutStatus(ChangeStatusRequestDto changeLayoutStatusRequestDto) {
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
 
-        Layout layout = layoutRepository.findByInstIdAndLayoutId(instId, changeLayoutStatusRequestDto.getId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_LAYOUT_ID, HttpStatus.NOT_FOUND));
+        Layout layout = layoutRepository.findByInstIdAndLayoutId(changeLayoutStatusRequestDto.getInstId(), changeLayoutStatusRequestDto.getId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_LAYOUT_ID, HttpStatus.NOT_FOUND));
         if (changeLayoutStatusRequestDto.getStatus().trim().equalsIgnoreCase(layout.getStatus())) {
             throw new BusinessException(ResponseCode.CFG_STATUS_NOT_CHANGED, HttpStatus.CONFLICT);
         }
@@ -396,7 +405,9 @@ public class LayoutService {
         if (jobTaskRepository.existsByLayout(String.valueOf(layout.getLayoutId())) > 0) {
             throw new BusinessException(ResponseCode.CFG_STATUS_NOT_CHANGED, HttpStatus.BAD_REQUEST);
         }
-
+		if (makerCheckerEngine.processIfRequired(changeLayoutStatusRequestDto, LayoutService.class.getName(), "changeLayoutStatus", "")) {
+			return;
+		}
         layoutRepository.updateLayoutStatus(changeLayoutStatusRequestDto.getId(), changeLayoutStatusRequestDto.getStatus().charAt(0), userDetails.getId());
     }
 
@@ -405,24 +416,17 @@ public class LayoutService {
      * MD_CFG_LAYOUT_DETAILS Logs the transaction in table MD_ADT_BKD_LOG
      */
     @Transactional
-    public void deleteLayout(int layoutId, String remoteAddress, int instId) {
-		UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext()
-				.getAuthentication().getPrincipal();
-        Layout layout = layoutRepository.findByInstIdAndLayoutId(instId, layoutId).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_LAYOUT_ID, HttpStatus.NOT_FOUND));
-//
-//        //Do not delete layout if linked to a job or to a channel
-//        if (channelRepository.existsByInstIdAndLayout(instId, layout)) {
-//            throw new BusinessException(ResponseCode.CFG_LAYOUT_NO_DELETE, HttpStatus.BAD_REQUEST);
-//        }
+    public void deleteLayout(DeleteLayoutRequestDto deleteLayoutRequestDto) {
 
+        Layout layout = layoutRepository.findByInstIdAndLayoutId(deleteLayoutRequestDto.getInstId(), deleteLayoutRequestDto.getLayoutId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_LAYOUT_ID, HttpStatus.NOT_FOUND));
         if (jobTaskRepository.existsByLayout(String.valueOf(layout.getLayoutId())) > 0) {
             throw new BusinessException(ResponseCode.CFG_LAYOUT_NO_DELETE, HttpStatus.BAD_REQUEST);
         }
-
-        //Delete layout details from MD_CFG_LAYOUT_DETAILS
-        layoutDetailsRepository.deleteAllByLayoutId(layoutId);
-
-        layoutRepository.deleteById(layoutId);
+		if (makerCheckerEngine.processIfRequired(deleteLayoutRequestDto, LayoutService.class.getName(), "deleteLayout", "")) {
+			return;
+		}
+        layoutDetailsRepository.deleteAllByLayoutId( deleteLayoutRequestDto.getLayoutId());
+        layoutRepository.deleteById( deleteLayoutRequestDto.getLayoutId());
     }
 
     /*

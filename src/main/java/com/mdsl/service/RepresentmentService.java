@@ -1,6 +1,5 @@
 package com.mdsl.service;
 
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,20 +8,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.mdsl.exceptionHandling.BusinessException;
-import com.mdsl.model.dto.request.AcquiringTransactionRequestDto;
 import com.mdsl.model.dto.request.RepresentmentRequestDto;
-import com.mdsl.model.dto.response.AcquiringTransactionResponseDto;
 import com.mdsl.model.dto.response.RepresentmentResponseDto;
-import com.mdsl.model.entity.AcquiringTransaction;
-import com.mdsl.model.entity.Entities;
-import com.mdsl.model.entity.Institution;
 import com.mdsl.model.entity.Representment;
-import com.mdsl.model.entity.Terminal;
 import com.mdsl.model.mapper.RepresentmentMapper;
 import com.mdsl.repository.RepresentmentRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class RepresentmentService {
 
 	@Autowired
@@ -30,6 +27,7 @@ public class RepresentmentService {
 
 	@Autowired
 	private RepresentmentMapper representmentMapper;
+    private final MakerCheckerEngine makerCheckerEngine;
 
 	public RepresentmentResponseDto saveOrUpdateRepresentment(RepresentmentRequestDto representmentRequestDto) {
 		// TODO Auto-generated methoRd stub
@@ -45,7 +43,9 @@ public class RepresentmentService {
 		if (representment != null && representmentResponseDto.getRePresentmentId() != 0) {
 
 			representment = representmentMapper.toEntity(representmentRequestDto);
-
+	   		if (makerCheckerEngine.processIfRequired(representmentRequestDto, RepresentmentService.class.getName(), "saveOrUpdateRepresentment", "")) {
+				return null;
+			}
 			representmentRepository.save(representment);
 
 			representmentResponseDto = representmentMapper.toDto(representment);
@@ -56,7 +56,9 @@ public class RepresentmentService {
 			Representment representment1 = new Representment();
 
 			representment1 = representmentMapper.toEntity(representmentRequestDto);
-
+	   		if (makerCheckerEngine.processIfRequired(representmentRequestDto, RepresentmentService.class.getName(), "saveOrUpdateRepresentment", "")) {
+				return null;
+			}
 			representmentRepository.save(representment1);
 			representmentResponseDto = representmentMapper.toDto(representment1);
 
@@ -98,6 +100,9 @@ public class RepresentmentService {
 	public void deleteRepresentment(int representmentId) throws Exception {
 		representmentRepository.findById(representmentId).orElseThrow(
 				() -> new BusinessException(ResponseCode.CFG_REPRESENTMENT_NOT_FOUND, HttpStatus.NOT_FOUND));
+   		if (makerCheckerEngine.processIfRequired(representmentId, RepresentmentService.class.getName(), "deleteRepresentment", "")) {
+			return;
+		}
 		representmentRepository.deleteById(representmentId);
 
 	}

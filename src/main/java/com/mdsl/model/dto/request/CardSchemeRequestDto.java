@@ -45,4 +45,5 @@ public class CardSchemeRequestDto {
 	@Pattern(regexp = "[0-1]", message = ResponseCode.CFG_INVALID_CARDSCHEME_STATUS)
 	private String status;
 	
+	private String instId;
 }

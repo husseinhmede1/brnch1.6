@@ -15,7 +15,7 @@ public interface ApiMapper {
 
 	ApiResponseDto toDto (Api api);
 
-	@Mapping(source="instId", target="instId")
+	@Mapping(source="institution", target="instId")
 	@Mapping(source="apiDesc", target="apiDesc")
 	@Mapping(source="stp", target="stp")
 	@Mapping(source="apiFunction", target="apiFunction")

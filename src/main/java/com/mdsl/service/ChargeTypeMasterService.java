@@ -17,11 +17,17 @@ import com.mdsl.model.dto.response.ChargeTypeMasterResponseDto;
 import com.mdsl.model.entity.ChargeTypeMaster;
 import com.mdsl.model.mapper.ChargeTypeMasterMapper;
 import com.mdsl.repository.ChargeTypeMasterRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class ChargeTypeMasterService {
 	
+    private final MakerCheckerEngine makerCheckerEngine;
+
 	@Autowired
 	private ChargeTypeMasterRepository chargeTypeMasterRepository;
 	
@@ -70,7 +76,9 @@ public class ChargeTypeMasterService {
 					.orElseThrow(() -> new BusinessException(ResponseCode.CFG_CHARGE_TYPE_MASTER_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
 			chargeTypeMaster.setChargeTypeMasterName(chargeTypeMasterRequestDto.getChargeTypeMasterName());
 		}
-		
+		if (makerCheckerEngine.processIfRequired(chargeTypeMasterRequestDto, ChargeTypeMasterService.class.getName(), "saveOrUpdateChargeTypeMaster", "")) {
+			return null;
+		}
 		finalList=chargeTypeMasterRepository.save(chargeTypeMaster);
 		ChargeTypeMasterResponseDto dto=chargeTypeMasterMapper.toDto(finalList);
 		return  dto;

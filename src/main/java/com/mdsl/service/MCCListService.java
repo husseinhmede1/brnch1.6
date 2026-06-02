@@ -32,11 +32,16 @@ import com.mdsl.repository.MCCListRepositoryImpl;
 import com.mdsl.repository.MerchantTypeRepository;
 import com.mdsl.repository.SystemCodeRepository;
 import com.mdsl.repository.TerminalRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.PaginationCommonCode;
 import com.mdsl.utils.ResponseCode;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class MCCListService {
+    private final MakerCheckerEngine makerCheckerEngine ;
 
 	@Autowired
 	private CardSchemeRepository cardSchemeRepository;
@@ -61,6 +66,8 @@ public class MCCListService {
 
 	@Autowired
 	private SystemCodeRepository systemCodeRepository;
+	
+	
 
 	public MCCListResponseDto saveOrUpdateMccList(MCCListRequestDto mccListRequestDto) {
 		MCCList mccList;
@@ -118,7 +125,9 @@ public class MCCListService {
 			mccList.setDescription(mccListRequestDto.getDescription());
 		//	mccList.setCreatedBy(Integer.valueOf(userDetails.getId()).toString());
 		}
-
+		if (makerCheckerEngine.processIfRequired(mccListRequestDto, MCCListService.class.getName(), "saveOrUpdateMccList", "")) {
+			return null;
+		}
 		finalList = mccListRepository.save(mccList);
 		MCCListResponseDto dto = mccListMapper.toDto(finalList);
 		return dto;
@@ -176,6 +185,9 @@ public class MCCListService {
 		List<Terminal> terminals = terminalRepository.findByMccList(mccList.getMcc());
 		List<Entities> entities = entitiesRepository.findByDefaultMCC(mccList.getMcc());
 		if ((terminals.isEmpty()) && (entities.isEmpty())) {
+			if (makerCheckerEngine.processIfRequired(id, MCCListService.class.getName(), "deleteMccListById", "")) {
+				return;
+			}
 			mccListRepository.deleteById(id);
 		} else {
 			throw new BusinessException(ResponseCode.CFG_REFERENCE_EXISTS, HttpStatus.NOT_FOUND);

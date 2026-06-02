@@ -73,7 +73,7 @@ public class CurrencyService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
-		if (makerCheckerEngine.processIfRequired(currencyRequestDto, CurrencyService.class.getName(), "saveOrUpdateCurrency", "", 1)) {
+		if (makerCheckerEngine.processIfRequired(currencyRequestDto, CurrencyService.class.getName(), "saveOrUpdateCurrency", "")) {
 			return null;
 		}
         if (Objects.isNull(currencyRequestDto.getCurrencyId()) || currencyRequestDto.getCurrencyId() == 0) {

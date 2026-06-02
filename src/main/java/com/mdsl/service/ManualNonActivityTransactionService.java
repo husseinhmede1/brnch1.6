@@ -32,6 +32,7 @@ import com.mdsl.repository.EntitiesRepository;
 import com.mdsl.repository.InstitutionRepository;
 import com.mdsl.repository.ManualNonActivityTransactionRepository;
 import com.mdsl.repository.SystemCodeRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.PaginationCommonCode;
 import com.mdsl.utils.ResponseCode;
 
@@ -60,6 +61,7 @@ public class ManualNonActivityTransactionService {
 
 	@Autowired
 	private ManualNonActivityTransactionMapper manualNonActivityTransactionMapper;
+    private final MakerCheckerEngine makerCheckerEngine;
 
 //	public List<ManualNonActivityTransactionResponseDto> getAllTransactions() {
 //		List<ManualNonActivityTransactionResponseDto> allManualNonActivityTransactionCodesDto = new ArrayList<ManualNonActivityTransactionResponseDto>();
@@ -153,13 +155,9 @@ public class ManualNonActivityTransactionService {
 				|| manualNonActivityTransactionRequestDto.getManualNonActivityTransactionId() == 0) {
 			manualNonActivityTransaction = manualNonActivityTransactionMapper
 					.toEntity(manualNonActivityTransactionRequestDto);
-	//		manualNonActivityTransaction.setRecordSeqId(0);
-	//		manualNonActivityTransaction.setUserCreate("test");
 			manualNonActivityTransaction.setDateCreate(new Date());
-
 			manualNonActivityTransaction.setEntitiesObject(entities);
 			manualNonActivityTransaction.setEntities(entities.getEntityId());
-
 			manualNonActivityTransaction.setTransactionEntity(defaultTransactionId);
 			manualNonActivityTransaction.setTransaction(defaultTransactionId.getTransactionId());
 			manualNonActivityTransaction.setTransactionCurrency(currency);
@@ -168,7 +166,9 @@ public class ManualNonActivityTransactionService {
 			if(userDetails!=null) {
 				manualNonActivityTransaction.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
 			}
-
+			if (makerCheckerEngine.processIfRequired(manualNonActivityTransactionRequestDto, ManualNonActivityTransactionService.class.getName(), "saveOrUpdateManualNonActivityTransaction", "")) {
+				return null;
+			}
 			manualNonActivityTransaction = manualNonActivityTransactionRepository.save(manualNonActivityTransaction);
 		}
 
@@ -211,62 +211,11 @@ public class ManualNonActivityTransactionService {
 	public void deleteManualNonActivityTransaction(int id) throws Exception {
 		manualNonActivityTransactionRepository.findById(id).orElseThrow(
 				() -> new BusinessException(ResponseCode.MNT_NOT_FOUND, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(id, ManualNonActivityTransactionRequestDto.class.getName(), "deleteManualNonActivityTransaction", "")) {
+			return;
+		}
 		manualNonActivityTransactionRepository.deleteById(id);
 	}
-
-//	public List<ManualNonActivityTransactionResponseDto> getTransactionsBySearch(
-//			ManualNonActivityTransactionRequestDto manualNonActivityTransactionRequestDto) {
-//
-//		List<ManualNonActivityTransactionResponseDto> responseDtos = new ArrayList<ManualNonActivityTransactionResponseDto>();
-//		List<ManualNonActivityTransaction> manualNonActivityTransactions = null;
-//
-//		if (manualNonActivityTransactionRequestDto.getTransactionId() == null) {
-//			manualNonActivityTransactions = manualNonActivityTransactionRepository
-//					.findByInstitution_InstitutionIdAndEntities_EntityIdAndTransactionDateBetween(
-//							manualNonActivityTransactionRequestDto.getInstitutionId(),
-//							manualNonActivityTransactionRequestDto.getOutletId(),
-//							manualNonActivityTransactionRequestDto.getFromTransactionDate(),
-//							manualNonActivityTransactionRequestDto.getToTransactionDate());
-//		}
-//
-//		else if (manualNonActivityTransactionRequestDto.getTransactionId() != null) {
-//			manualNonActivityTransactions = manualNonActivityTransactionRepository
-//					.findByInstitution_InstitutionIdAndEntities_EntityIdAndTransaction_TransactionIdAndTransactionDateBetween(
-//							manualNonActivityTransactionRequestDto.getInstitutionId(),
-//							manualNonActivityTransactionRequestDto.getOutletId(),
-//							manualNonActivityTransactionRequestDto.getTransactionId(),
-//							manualNonActivityTransactionRequestDto.getFromTransactionDate(),
-//							manualNonActivityTransactionRequestDto.getToTransactionDate());
-//		}
-//
-//		manualNonActivityTransactions.stream().forEach((trans) -> {
-//			ManualNonActivityTransactionResponseDto dto = manualNonActivityTransactionMapper.toDto(trans);
-//			responseDtos.add(dto);
-//		});
-//
-//		return responseDtos;
-//	}
-
-//	public List<ManualNonActivityTransactionResponseDto> getManualNonActivityTransactionByInstitutionId(
-//			ManualNonActivityTransactionRequestDto manualNonActivityTransactionRequestDto) {
-//		List<ManualNonActivityTransactionResponseDto> allManualNonActivityTransactionCodesDto = new ArrayList<ManualNonActivityTransactionResponseDto>();
-//
-//		Institution institution = institutionRepository
-//				.findById(manualNonActivityTransactionRequestDto.getInstitutionId())
-//				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_INST, HttpStatus.NOT_FOUND));
-//
-//		List<ManualNonActivityTransaction> allManualNonActivityTransactionCodes = manualNonActivityTransactionRepository
-//				.findByInstitution_InstitutionId(institution.getInstitutionId(),
-//						Sort.by(Sort.Direction.ASC, "manualNonActivityTransactionId"));
-//
-//		allManualNonActivityTransactionCodes.stream().forEach((manualNonActivityTransactionCode) -> {
-//			ManualNonActivityTransactionResponseDto manualNonActivityTransactionCodeResponseDto = manualNonActivityTransactionMapper
-//					.toDto(manualNonActivityTransactionCode);
-//			allManualNonActivityTransactionCodesDto.add(manualNonActivityTransactionCodeResponseDto);
-//		});
-//
-//		return allManualNonActivityTransactionCodesDto;
-//	}
 
 	public ResponseEntity<PaginationResponseDto> getManualNonActivityTransactionByInstitutionId(
 			ManualNonActivityFeesPackageRequestDto manualNonActivityTransactionRequestDto) {

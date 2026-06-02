@@ -3,7 +3,6 @@ package com.mdsl.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import javax.validation.Valid;
 
@@ -17,19 +16,23 @@ import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.PaymentAccountRequestDto;
 import com.mdsl.model.dto.response.PaymentAccountResponseDto;
 import com.mdsl.model.entity.BankCode;
-import com.mdsl.model.entity.PaymentAccount;
 import com.mdsl.model.entity.Currency;
 import com.mdsl.model.entity.Entities;
 import com.mdsl.model.entity.Institution;
+import com.mdsl.model.entity.PaymentAccount;
 import com.mdsl.model.mapper.PaymentAccountMapper;
 import com.mdsl.repository.BankCodeRepository;
 import com.mdsl.repository.CurrencyRepository;
 import com.mdsl.repository.EntitiesRepository;
 import com.mdsl.repository.InstitutionRepository;
 import com.mdsl.repository.PaymentAccountRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class PaymentAccountService {
 
 	@Autowired
@@ -49,6 +52,7 @@ public class PaymentAccountService {
 
 	@Autowired
 	private EntitiesRepository entityRepository;
+    private final MakerCheckerEngine makerCheckerEngine;
 
 	public List<PaymentAccountResponseDto> fetchAllPaymentAccount() {
 		List<PaymentAccount> paymentAccount = paymentAccountRepository
@@ -149,7 +153,9 @@ public class PaymentAccountService {
 			paymentAccount.setEntityObject(entity);
 
 		}
-
+   		if (makerCheckerEngine.processIfRequired(paymentAccountRequestDto, PaymentAccountService.class.getName(), "saveOrUpdatePaymentAccount", "")) {
+			return null;
+		}
 		finalList = paymentAccountRepository.save(paymentAccount);
         return paymentAccountMapper.toDto(finalList);
 	}
@@ -157,6 +163,9 @@ public class PaymentAccountService {
 	public void deletePaymentAccountById(int id) throws Exception {
 		paymentAccountRepository.findById(id)
 				.orElseThrow(() -> new BusinessException(ResponseCode.PAY_PAYMENT_NOT_FOUND, HttpStatus.NOT_FOUND));
+   		if (makerCheckerEngine.processIfRequired(id, PaymentAccountService.class.getName(), "deletePaymentAccountById", "")) {
+			return;
+		}
 		paymentAccountRepository.deleteById(id);
 
 	}

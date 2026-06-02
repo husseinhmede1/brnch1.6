@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
+import com.mdsl.model.dto.request.DeleteLayoutRequestDto;
 import com.mdsl.model.dto.request.LayoutRequestDto;
 import com.mdsl.model.dto.request.PaginationRequestDto;
 import com.mdsl.model.dto.response.LayoutResponseDto;
@@ -77,7 +78,10 @@ public class LayoutController {
 	@ApiOperation(value = "Save Layout")
 	public LayoutResponseDto saveLayout (@Valid @RequestBody LayoutRequestDto layoutRequestDto, BindingResult bindingResult, HttpServletRequest request) {
 		Validations.validate(bindingResult); 
-		return layoutService.saveLayout(layoutRequestDto, request.getRemoteAddr(), Integer.parseInt(request.getHeader("instId")));
+		layoutRequestDto.setInstId(request.getHeader("instId"));
+		layoutRequestDto.setRemoteAddress(request.getRemoteAddr());
+
+		return layoutService.saveLayout(layoutRequestDto);
 	}
 	
 	@PostMapping("/status-change")
@@ -85,7 +89,9 @@ public class LayoutController {
 	public void changeLayoutStatus(@Valid @RequestBody ChangeStatusRequestDto changeLayoutStatusRequestDTO, BindingResult bindingResult, HttpServletRequest request) {
 		Validations.validate(bindingResult);
 		try {
-			layoutService.changeLayoutStatus(changeLayoutStatusRequestDTO, request.getRemoteAddr(), Integer.parseInt(request.getHeader("instId")));
+			changeLayoutStatusRequestDTO.setInstId(String.valueOf(request.getHeader("instId")));
+			changeLayoutStatusRequestDTO.setRemoteAddress(request.getRemoteAddr());
+			layoutService.changeLayoutStatus(changeLayoutStatusRequestDTO);
 		} catch (BusinessException e) {
 			throw new BusinessException (e.getMessage(), e.getHttpStatus());
 		} catch (Exception e) {
@@ -96,14 +102,20 @@ public class LayoutController {
 	
 	@DeleteMapping("/{layoutId}")
 	@ApiOperation(value = "Delete Layout")
-	public void deleteLayout(@PathVariable(value="layoutId") int layoutId, HttpServletRequest request) {
-		try {
-			layoutService.deleteLayout(layoutId, request.getRemoteAddr(), Integer.parseInt(request.getHeader("instId")));
-		} catch (BusinessException e) {
-			throw new BusinessException (e.getMessage(), e.getHttpStatus());
-		} catch (Exception e) {
-			logger.error("@LayoutController#deleteLayout: " + e.getMessage());
-			throw new BusinessException (ResponseCode.CFG_LAYOUT_NO_DELETE, HttpStatus.BAD_REQUEST);
-		}
- 	}
+	public void deleteLayout(@PathVariable("layoutId") int layoutId, HttpServletRequest request) {
+
+	    DeleteLayoutRequestDto dto = new DeleteLayoutRequestDto();
+	    dto.setLayoutId(layoutId);
+	    dto.setRemoteAddress(request.getRemoteAddr());
+	    dto.setInstId(request.getHeader("instId"));
+
+	    try {
+	        layoutService.deleteLayout(dto);
+	    } catch (BusinessException e) {
+	        throw new BusinessException(e.getMessage(), e.getHttpStatus());
+	    } catch (Exception e) {
+	        logger.error("@LayoutController#deleteLayout: " + e.getMessage(), e);
+	        throw new BusinessException(ResponseCode.CFG_LAYOUT_NO_DELETE, HttpStatus.BAD_REQUEST);
+	    }
+	}
 }

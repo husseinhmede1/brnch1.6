@@ -16,9 +16,9 @@ import com.mdsl.model.entity.Layout;
 
 @Repository 
 public interface LayoutRepository extends JpaRepository<Layout, Integer>{
-	Boolean existsByInstIdAndLayoutNameIgnoreCase(int instId, String layoutName);
+	Boolean existsByInstIdAndLayoutNameIgnoreCase(String instId, String layoutName);
 	
-	Boolean existsByInstIdAndLayoutNameIgnoreCaseAndLayoutIdNotIn(int instId, String layoutName, List<Integer> layoutId);
+	Boolean existsByInstIdAndLayoutNameIgnoreCaseAndLayoutIdNotIn(String instId, String layoutName, List<Integer> layoutId);
 
 	List<Layout> findByInstIdAndStatus(int instId, String status);
 
@@ -29,7 +29,7 @@ public interface LayoutRepository extends JpaRepository<Layout, Integer>{
 	@Query(value="SELECT * FROM MD_CFG_LAYOUT WHERE INST_ID = :instId AND FILEID IN (SELECT FILEID FROM MD_CFG_FILES WHERE FILETYPE IN (SELECT FILE_TYPE_ID FROM MD_LKU_FILE_TYPES WHERE FILE_TYPE_CODE = :fileType))", nativeQuery=true)
 	List<Layout> findByInstIdAndFileType(int instId, String fileType);
 	
-	Optional<Layout> findByInstIdAndLayoutId(Integer instId, Integer layoutId);
+	Optional<Layout> findByInstIdAndLayoutId(String instId, Integer layoutId);
 	
 	@Transactional
 	@Modifying

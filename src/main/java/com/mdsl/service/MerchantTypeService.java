@@ -17,9 +17,13 @@ import com.mdsl.model.dto.response.MerchantTypeResponseDto;
 import com.mdsl.model.entity.MerchantType;
 import com.mdsl.model.mapper.MerchantTypeMapper;
 import com.mdsl.repository.MerchantTypeRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
+import lombok.RequiredArgsConstructor;
+
 @Service
+@RequiredArgsConstructor
 public class MerchantTypeService {
 	
 	
@@ -28,6 +32,7 @@ public class MerchantTypeService {
 	
 	@Autowired
 	private MerchantTypeMapper merchantTypeMapper;
+    private final MakerCheckerEngine makerCheckerEngine;
 
 	public List<MerchantTypeResponseDto> fetchAllMerchantType() 
 	{
@@ -63,7 +68,9 @@ public class MerchantTypeService {
 					.orElseThrow(() -> new BusinessException(ResponseCode.MRC_MERCHANT_TYPE_NOT_FOUND, HttpStatus.NOT_FOUND));
 			merchantType.setMerchantTypeName(merchantTypeRequestDto.getMerchantTypeName());
 		}
-		
+		if (makerCheckerEngine.processIfRequired(merchantTypeRequestDto, MerchantTypeService.class.getName(), "saveOrUpdateMerchantType", "")) {
+			return null;
+		}
 		finalList=merchantTypeRepository.save(merchantType);
 		MerchantTypeResponseDto dto=merchantTypeMapper.toDto(finalList);
 		return dto;
@@ -72,7 +79,10 @@ public class MerchantTypeService {
 	public void deleteMerchantTypeById(int id) 
 	{
 		 merchantTypeRepository.findById(id).orElseThrow(() -> new BusinessException(ResponseCode.MRC_MERCHANT_TYPE_NOT_FOUND, HttpStatus.NOT_FOUND));
-		merchantTypeRepository.deleteById(id);
+			if (makerCheckerEngine.processIfRequired(id, MerchantTypeService.class.getName(), "deleteMerchantTypeById", "")) {
+				return ;
+			}
+		 merchantTypeRepository.deleteById(id);
 	}
 	
 	

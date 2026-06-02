@@ -28,7 +28,7 @@ public class ModuleService {
         "MAX(ra.ACCESS_UPDATE)  AS ACCESS_UPDATE, " +
         "MAX(ra.ACCESS_DELETE)  AS ACCESS_DELETE, " +
         "MAX(ra.ACCESS_CHECKER) AS ACCESS_CHECKER, " +
-        "bapi.API_URL, bapi.IS_GET_API " +
+        "bapi.API_URL, bapi.IS_GET_API, caa.ACCESS_RIGHT " +
         "FROM MD_CFG_ACTIVITY a " +
         "JOIN MD_ENT_ROLE_ACTIVITY ra ON ra.ACTIVITY_ID = a.ACTIVITY_ID " +
         "JOIN MD_ENT_USER_ROLE ur ON ur.ROLE_ID = ra.ROLE_ID " +
@@ -37,7 +37,7 @@ public class ModuleService {
         "LEFT JOIN MD_BKD_API bapi ON bapi.API_ID = caa.API_ID " +
         "GROUP BY a.ACTIVITY_ID, a.ACTIVITY_CODE, a.ACTIVITY_DESC, " +
         "   a.IS_MENU, a.HAS_SCREEN, a.PARENT_ACTIVITY_ID, " +
-        "   bapi.API_URL, bapi.IS_GET_API " +
+        "   bapi.API_URL, bapi.IS_GET_API, caa.ACCESS_RIGHT " +
         "ORDER BY a.PARENT_ACTIVITY_ID NULLS FIRST, a.ACTIVITY_ID";
 
     public List<ModuleActivityResponseDto> getModulesActivitiesByUser(int instId, int userId) {
@@ -68,6 +68,7 @@ public class ModuleService {
                 FrontUrl fu = new FrontUrl();
                 fu.setUrl(apiUrl);
                 fu.setIsMenu(rs.getString("IS_GET_API"));
+                fu.setAccessRight(rs.getString("ACCESS_RIGHT"));
                 row.urls.add(fu);
             }
         }, instId, userId);

@@ -17,8 +17,6 @@ public interface ActivityRepository extends JpaRepository<Activity, Integer> {
 
 //	Optional<Activity> findByActivityIdAndInstitution (int activityId, Institution institution);
 	
-	List<Activity> getByParentActivity(Activity activity);
-
 	Optional<Activity> findByActivityId(int activityId);
 
 //	List<Activity> findByInstitutionAndModule(Institution institution, com.mdsl.model.entity.Module module);

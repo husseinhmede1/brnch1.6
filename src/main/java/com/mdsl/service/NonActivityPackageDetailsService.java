@@ -216,8 +216,6 @@ public class NonActivityPackageDetailsService {
 
 		nonActivityPackageDetailsRequestDto.setPackageId(nonActivityPackageDetailsRequestDto.getPackageId().trim().toUpperCase());
 
-
-		NonActivityPackageDetails pkg;
 		SystemCode frequencyMaster =null;
 		NonActivityPackageDetails nonActivityPackageDetails;
 		
@@ -269,38 +267,35 @@ public class NonActivityPackageDetailsService {
 			nonActivityPackageDetails.setTerminalTypes(terminalTypes);
 			nonActivityPackageDetails.setAssignedTransaction(null);
             nonActivityPackageDetails.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
-    		if (makerCheckerEngine.processIfRequired(nonActivityPackageDetailsRequestDto, NonActivityPackageDetailsService.class.getName(), "saveOrUpdateNonActivityPackageDetails", "")) {
-    			return null;
-    		}
-            nonActivityPackageDetails = nonActivityPackageDetailsRepository.save(nonActivityPackageDetails);
 		}
 
 		else {
-			pkg = nonActivityPackageDetailsRepository
+			nonActivityPackageDetails = nonActivityPackageDetailsRepository
 					.findById(nonActivityPackageDetailsRequestDto.getPackageDetailsId())
 					.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_ACTIVITY, HttpStatus.NOT_FOUND));
 
-			pkg.setAmount(nonActivityPackageDetailsRequestDto.getAmount());
-			pkg.setChargeCount(nonActivityPackageDetailsRequestDto.getChargeCount());
-			pkg.setChargeFirstTransaction(nonActivityPackageDetailsRequestDto.getChargeFirstTransaction());
-			pkg.setEndDate(nonActivityPackageDetailsRequestDto.getEndDate());
-			pkg.setStartDate(nonActivityPackageDetailsRequestDto.getStartDate());
-			pkg.setMaxAmount(nonActivityPackageDetailsRequestDto.getMaxAmount());
-			pkg.setNumberOfInstallments(nonActivityPackageDetailsRequestDto.getNumberOfInstallments());
-			pkg.setStatus(nonActivityPackageDetailsRequestDto.getStatus());
-			pkg.setInstitution(institution);
-			pkg.setNonActivityPackageEntity(nonActivityPackage);
-			pkg.setNonActivityPackage(nonActivityPackage.getPackageId());
-			pkg.setCurrency(currency);
-			pkg.setFrequency(frequencyMaster!=null?frequencyMaster.getCodeValue():null);
-			pkg.setChargeMaster(chargeTypeMaster.getCodeValue());
-			pkg.setTerminalTypes(terminalTypes);
-			pkg.setAssignedTransaction(null);
-	   		if (makerCheckerEngine.processIfRequired(nonActivityPackageDetailsRequestDto, NonActivityPackageDetailsService.class.getName(), "saveOrUpdateNonActivityPackageDetails", "")) {
-    			return null;
-    		}
-			nonActivityPackageDetails = nonActivityPackageDetailsRepository.save(pkg);
+			nonActivityPackageDetails.setAmount(nonActivityPackageDetailsRequestDto.getAmount());
+			nonActivityPackageDetails.setChargeCount(nonActivityPackageDetailsRequestDto.getChargeCount());
+			nonActivityPackageDetails.setChargeFirstTransaction(nonActivityPackageDetailsRequestDto.getChargeFirstTransaction());
+			nonActivityPackageDetails.setEndDate(nonActivityPackageDetailsRequestDto.getEndDate());
+			nonActivityPackageDetails.setStartDate(nonActivityPackageDetailsRequestDto.getStartDate());
+			nonActivityPackageDetails.setMaxAmount(nonActivityPackageDetailsRequestDto.getMaxAmount());
+			nonActivityPackageDetails.setNumberOfInstallments(nonActivityPackageDetailsRequestDto.getNumberOfInstallments());
+			nonActivityPackageDetails.setStatus(nonActivityPackageDetailsRequestDto.getStatus());
+			nonActivityPackageDetails.setInstitution(institution);
+			nonActivityPackageDetails.setNonActivityPackageEntity(nonActivityPackage);
+			nonActivityPackageDetails.setNonActivityPackage(nonActivityPackage.getPackageId());
+			nonActivityPackageDetails.setCurrency(currency);
+			nonActivityPackageDetails.setFrequency(frequencyMaster!=null?frequencyMaster.getCodeValue():null);
+			nonActivityPackageDetails.setChargeMaster(chargeTypeMaster.getCodeValue());
+			nonActivityPackageDetails.setTerminalTypes(terminalTypes);
+			nonActivityPackageDetails.setAssignedTransaction(null);
 		}
+
+		if (makerCheckerEngine.processIfRequired(nonActivityPackageDetailsRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
+		nonActivityPackageDetails = nonActivityPackageDetailsRepository.save(nonActivityPackageDetails);
 
 		return nonActivityPackageDetailsMapper.toDto(nonActivityPackageDetails);
 	}
@@ -325,7 +320,7 @@ public class NonActivityPackageDetailsService {
 		List<Entities> entities = entitiesRepository
 				.findByNonactivityFeePKGEntity_PackageIdAndInstitution_institutionId(nonActivityPackageDetails.getNonActivityPackageEntity().getPackageId(),deleteNonActivityPackageDetailsRequestDto.getInstId(),Sort.by(Sort.Direction.ASC, "entityId"));
 		if (entities.isEmpty()) {
-	   		if (makerCheckerEngine.processIfRequired(deleteNonActivityPackageDetailsRequestDto, NonActivityPackageDetailsService.class.getName(), "deleteNonActivityPackageDetails", "")) {
+	   		if (makerCheckerEngine.processIfRequired(deleteNonActivityPackageDetailsRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 				return null;
 			}
 			nonActivityPackageDetailsRepository.deleteById(deleteNonActivityPackageDetailsRequestDto.getId());
@@ -341,7 +336,7 @@ public class NonActivityPackageDetailsService {
 				.findById(changeStatusRequestDto.getId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_ACTIVITY, HttpStatus.NOT_FOUND));
 		nonActivityPackageDetails.setStatus(changeStatusRequestDto.getStatus().charAt(0));
-   		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, NonActivityPackageDetailsService.class.getName(), "changeStatus", "")) {
+   		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return;
 		}
 		nonActivityPackageDetailsRepository.save(nonActivityPackageDetails);

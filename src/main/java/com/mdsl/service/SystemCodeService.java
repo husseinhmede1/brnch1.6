@@ -29,6 +29,7 @@ import com.mdsl.model.mapper.SystemCodeMapper;
 import com.mdsl.repository.InstitutionRepository;
 import com.mdsl.repository.SystemCodeHeaderRepository;
 import com.mdsl.repository.SystemCodeRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.enumerations.StatusEnum;
 
@@ -46,6 +47,8 @@ public class SystemCodeService {
 	private final SystemCodeHeaderRepository systemCodeHeaderRepository;
 
 	private final OutputFileInfoRepository outputFileInfoRepository;
+
+	private final MakerCheckerEngine makerCheckerEngine;
 
 	public List<SystemCodeResponseDto> fetchAllSystemCodes() {
 		List<SystemCode> systemCodes = systemCodeRepository.findAll(Sort.by(Sort.Direction.ASC, "systemCodeId"));
@@ -150,6 +153,9 @@ public class SystemCodeService {
 			//systemCode.setCreatedBy(Integer.valueOf(userDetails.getId()).toString());
 		}
 
+		if (makerCheckerEngine.processIfRequired(systemCodeRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		finalList = systemCodeRepository.save(systemCode);
 		SystemCodeResponseDto dto = systemCodeMapper.toDto(finalList);
 		return dto;
@@ -158,6 +164,9 @@ public class SystemCodeService {
 	public void deleteSystemCodeById(int id) {
 		systemCodeRepository.findById(id)
 				.orElseThrow(() -> new BusinessException(ResponseCode.SYS_CODE_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		systemCodeRepository.deleteById(id);
 	}
 
@@ -227,6 +236,9 @@ public class SystemCodeService {
 		SystemCode systemCode = systemCodeRepository.findById(changeStatusRequestDto.getId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.SYS_CODE_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
 		systemCode.setStatus(changeStatusRequestDto.getStatus().charAt(0));
+		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		systemCodeRepository.save(systemCode);
 	}
 	

@@ -68,27 +68,23 @@ public class CurrencyService {
 
     public CurrencyResponseDto saveOrUpdateCurrency(CurrencyRequestDto currencyRequestDto) {
         int count = 0;
-        Currency curr = null;
-        Currency currency = new Currency();
+        Currency curr;
 
         UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
-		if (makerCheckerEngine.processIfRequired(currencyRequestDto, CurrencyService.class.getName(), "saveOrUpdateCurrency", "")) {
-			return null;
-		}
+
         if (Objects.isNull(currencyRequestDto.getCurrencyId()) || currencyRequestDto.getCurrencyId() == 0) {
 
             try {
                 checkCurrencyCodeAndCurrencyName(currencyRequestDto);
-                currency = currencyMapper.toEntity(currencyRequestDto);
+                curr = currencyMapper.toEntity(currencyRequestDto);
                 //currency.setRecordSeqId(0);
                 //	currency.setUserCreate("test");
-                currency.setDateCreate(new Date());
-                currency.setStatus("1".charAt(0));
+                curr.setDateCreate(new Date());
+                curr.setStatus("1".charAt(0));
                 if (userDetails != null) {
-                    currency.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
+                    curr.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
                 }
-                currency = currencyRepository.save(currency);
             } catch (BusinessException e) {
                 throw new BusinessException(e.getMessage(), e.getHttpStatus());
 
@@ -150,7 +146,7 @@ public class CurrencyService {
                 curr.setCurrCodeALPHA3(currencyRequestDto.getCurrCodeALPHA3());
                 curr.setCurrExponent(currencyRequestDto.getCurrExponent());
                 //	curr.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
-                currency = currencyRepository.save(curr);
+
             } catch (BusinessException e) {
                 throw new BusinessException(e.getMessage(), e.getHttpStatus());
 
@@ -163,20 +159,38 @@ public class CurrencyService {
 //				}
             }
         }
-
-        return currencyMapper.toDto(currency);
+        if (makerCheckerEngine.processIfRequired(currencyRequestDto, this.getClass().getName(), new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName(), "")) {
+            return null;
+        }
+        curr = currencyRepository.save(curr);
+        return currencyMapper.toDto(curr);
     }
 
 
     public void deleteCurrency(int id) throws Exception {
         currencyRepository.findById(id)
                 .orElseThrow(() -> new BusinessException(ResponseCode.CUR_CURRENCY_NOT_FOUND, HttpStatus.NOT_FOUND));
+        if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName(), "")) {
+            return;
+        }
         currencyRepository.deleteById(id);
     }
 
     public String changeStatus(@Valid ChangeStatusRequestDto changeStatusRequestDto) {
         Currency currency = currencyRepository.findById(changeStatusRequestDto.getId())
                 .orElseThrow(() -> new BusinessException(ResponseCode.CUR_CURRENCY_NOT_FOUND, HttpStatus.NOT_FOUND));
+        if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, this.getClass().getName(), new Object() {}
+                .getClass()
+                .getEnclosingMethod()
+                .getName(), "")) {
+            return null;
+        }
         currency.setStatus(changeStatusRequestDto.getStatus().charAt(0));
         currencyRepository.save(currency);
 

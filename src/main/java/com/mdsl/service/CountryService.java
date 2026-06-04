@@ -23,6 +23,7 @@ import com.mdsl.model.mapper.CountryMapper;
 //import com.mdsl.model.mapper.CountryMapper;
 import com.mdsl.repository.CountryRepository;
 import com.mdsl.repository.CurrencyRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.enumerations.StatusEnum;
 
@@ -38,6 +39,9 @@ public class CountryService {
 
 	@Autowired
 	private CountryMapper countryMapper;
+
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
 
 	public List<CountryResponseDto> getAllCountries() {
 
@@ -77,6 +81,9 @@ public class CountryService {
 		if (countryDto.getCntryId() != 0) {
 			cntry = countryRepository.findById(countryDto.getCntryId()).get();
 		}
+		if (makerCheckerEngine.processIfRequired(countryDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		if (cntry != null) {
 			// countryDto.setCntryStatus(cntry.getCntryStatus());
 			char status = cntry.getCntryStatus();
@@ -111,11 +118,17 @@ public class CountryService {
 	public void deleteCountry(int id) throws Exception {
 		countryRepository.findById(id)
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_COUNTRY_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		countryRepository.deleteById(id);
 	}
 
 	public String updateStatus(int id) {
 		char enabled = countryRepository.findById(id).get().getCntryStatus();
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		if (enabled == '1')
 			countryRepository.UpdateStatus(id, '0');
 		else {

@@ -3,6 +3,7 @@ package com.mdsl.controller;
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.AllTerminalsRequestDto;
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
+import com.mdsl.model.dto.request.DeleteTerminalRequestDto;
 import com.mdsl.model.dto.request.TerminalRequestDto;
 import com.mdsl.model.dto.response.PaginationResponseDto;
 import com.mdsl.model.dto.response.TerminalResponseDto;
@@ -77,7 +78,11 @@ public class TerminalController {
 	public ResponseEntity<String> deleteTerminal(@PathVariable("terminalid") String terminalid,
 			@PathVariable("instId") String instId) {
 		try {
-			terminalService.deleteTerminal(terminalid, instId);
+			DeleteTerminalRequestDto deleteTerminalRequestDto = DeleteTerminalRequestDto.builder()
+					.terminalId(terminalid)
+					.instId(instId)
+					.build();
+			terminalService.deleteTerminal(deleteTerminalRequestDto);
 			String message = "An item is deleted with id : " + terminalid;
 			return ResponseEntity.ok(message);
 		} catch(BusinessException ex){
@@ -92,7 +97,8 @@ public class TerminalController {
 	@PostMapping("/status-change/{instId}")
 	public ResponseEntity<String> changeTerminalStatus(@Valid @RequestBody ChangeStatusRequestDto changeInstitutionStatusRequestDTO,@PathVariable("instId") String instId, BindingResult bindingResult, HttpServletRequest request) {
 		Validations.validate(bindingResult);
-		return ResponseEntity.ok(terminalService.changeStatus(changeInstitutionStatusRequestDTO,instId));
+		changeInstitutionStatusRequestDTO.setInstId(instId);
+		return ResponseEntity.ok(terminalService.changeStatus(changeInstitutionStatusRequestDTO));
 	}
 
 	@GetMapping("/active-terminal")

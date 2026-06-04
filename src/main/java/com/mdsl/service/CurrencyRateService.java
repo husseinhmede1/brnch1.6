@@ -27,6 +27,7 @@ import com.mdsl.model.mapper.CurrencyRateMapper;
 import com.mdsl.repository.CurrencyRateRepository;
 import com.mdsl.repository.CurrencyRepository;
 import com.mdsl.repository.InstitutionRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.PaginationCommonCode;
 import com.mdsl.utils.ResponseCode;
 
@@ -47,6 +48,9 @@ public class CurrencyRateService {
 
 	@Autowired
 	private CurrencyRateMapper currencyRateMapper;
+
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
 
 	public List<CurrencyRateResponseDto> getAllCurrencyRates() {
 		List<CurrencyRateResponseDto> allCurrencyCodesDto = new ArrayList<CurrencyRateResponseDto>();
@@ -99,6 +103,10 @@ public class CurrencyRateService {
 		Institution institution = institutionRepository.findById(currencyRateRequestDto.getInstitutionId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INSTITUTION_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
 
+		if (makerCheckerEngine.processIfRequired(currencyRateRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
+
 		if (Objects.isNull(currencyRateRequestDto.getCurrencyRateId())
 				|| currencyRateRequestDto.getCurrencyRateId() == 0) {
 //			if (currencyRateRequestDto.getEffectiveDate() == null) {
@@ -146,6 +154,9 @@ public class CurrencyRateService {
 	public void deleteCurrencyRate(int id) throws Exception {
 		currencyRateRepository.findById(id)
 				.orElseThrow(() -> new BusinessException(ResponseCode.CUR_CURRENCY_NOT_FOUND, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		currencyRateRepository.deleteById(id);
 	}
 

@@ -308,7 +308,7 @@ public class JobService {
 			saveJob.setEnabled(String.valueOf(StatusEnum.DISABLED.getValue()));
 			saveJob.setCreatedBy(userDetails.getId());
 			saveJob.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-			if (makerCheckerEngine.processIfRequired(jobRequestDto, JobService.class.getName(), "saveJob", "")) {
+			if (makerCheckerEngine.processIfRequired(jobRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 				return null;
 			}
 			saveJob = jobRepository.save(saveJob);
@@ -340,7 +340,7 @@ public class JobService {
 
 			//This is added for maker checker
 			int jobId=saveJob.getJobId();
-			if (makerCheckerEngine.processIfRequired(jobRequestDto, JobService.class.getName(), "saveJob", "")) {
+			if (makerCheckerEngine.processIfRequired(jobRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 				return null;
 			}
 			saveJob = jobRepository.save(saveJob);
@@ -435,7 +435,7 @@ public class JobService {
 		if (changeJobStatusRequestDto.getStatus().equalsIgnoreCase(String.valueOf(job.getStatus()))) {
 			throw new BusinessException(ResponseCode.CFG_STATUS_NOT_CHANGED, HttpStatus.CONFLICT);
 		}
-		if (makerCheckerEngine.processIfRequired(changeJobStatusRequestDto, JobService.class.getName(), "enableDisableJob", "")) {
+		if (makerCheckerEngine.processIfRequired(changeJobStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return;
 		}
 		jobRepository.updateJobStatus(changeJobStatusRequestDto.getId(), changeJobStatusRequestDto.getStatus().charAt(0), changeJobStatusRequestDto.getInstId(), userDetails.getId());
@@ -474,7 +474,7 @@ public class JobService {
 		if (jobExecutionLogRepository.existsByJob(job)) {
 			throw new BusinessException (ResponseCode.VAL_CANNOT_DELETE_JOB, HttpStatus.NOT_ACCEPTABLE);
 		}
-		if (makerCheckerEngine.processIfRequired(deleteJobRequestDto, JobService.class.getName(), "deleteJob", "")) {
+		if (makerCheckerEngine.processIfRequired(deleteJobRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return;
 		}
 		try {
@@ -584,7 +584,7 @@ public class JobService {
 
 		cloneJob.setUpdatedBy(userDetails.getId());
 		cloneJob.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
-		if (makerCheckerEngine.processIfRequired(scheduleJobRequestDto, JobService.class.getName(), "scheduleJob", "")) {
+		if (makerCheckerEngine.processIfRequired(scheduleJobRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return null;
 		}
 		jobRepository.save(cloneJob);

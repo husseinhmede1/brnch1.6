@@ -47,7 +47,7 @@ public class BkdServiceController {
 	@ApiOperation(value = "Update Bkd Services' batch size")
 	public ResponseEntity<BkdServiceResponseDto> updateBkdServiceBatchSize (@Valid @RequestBody BkdServiceRequestDto bkdServiceRequestDto, BindingResult bindingResult, HttpServletRequest request) {
 		Validations.validate(bindingResult); 
-		return ResponseEntity.ok(bkdServiceService.updateBkdServiceBatchSize(bkdServiceRequestDto, Integer.parseInt(request.getHeader("instId")), request.getRemoteAddr()));
+		return ResponseEntity.ok(bkdServiceService.updateBkdServiceBatchSize(bkdServiceRequestDto));
 	}
 	
 	@GetMapping("/parameter/{id}")

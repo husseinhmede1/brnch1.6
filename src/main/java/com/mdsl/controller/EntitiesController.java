@@ -2,8 +2,10 @@ package com.mdsl.controller;
 
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
+import com.mdsl.model.dto.request.DeleteEntityRequestDto;
 import com.mdsl.model.dto.request.EntityFilterRequestDto;
 import com.mdsl.model.dto.request.EntityRequestDto;
+import com.mdsl.model.dto.request.SaveCloneEntityRequestDto;
 import com.mdsl.model.dto.response.EntitiesResponseDto;
 import com.mdsl.model.dto.response.PaginationResponseDto;
 import com.mdsl.model.dto.response.TransactionMerchantNamesListDto;
@@ -135,7 +137,7 @@ public class EntitiesController {
 	@DeleteMapping("/{id}/{instId}")
 	public ResponseEntity<String> deleteEntity(@PathVariable(value = "id") String entityId,@PathVariable(value = "instId")String instId) {
 		try {
-			entitiesServices.deleteEntity(entityId,instId);
+			entitiesServices.deleteEntity(DeleteEntityRequestDto.builder().entityId(entityId).instId(instId).build());
 			return ResponseEntity.ok(new String("Entity deleted successfully"));
 		} catch (BusinessException e) {
 		    throw new BusinessException (e.getMessage(), e.getHttpStatus());
@@ -180,7 +182,8 @@ public class EntitiesController {
 			@Valid @RequestBody ChangeStatusRequestDto changeInstitutionStatusRequestDTO, BindingResult bindingResult,@PathVariable(value = "instId")String instId) {
 		Validations.validate(bindingResult);
 		try {
-			entitiesServices.changeStatus(changeInstitutionStatusRequestDTO,instId);
+			changeInstitutionStatusRequestDTO.setInstId(instId);
+			entitiesServices.changeStatus(changeInstitutionStatusRequestDTO);
 		} catch (BusinessException e) {
 			System.out.println(e.getMessage());
 			System.out.println(e.getErrorCode());
@@ -228,7 +231,7 @@ public class EntitiesController {
 	@PostMapping("/save-clone/{id}")
 	public ResponseEntity<EntitiesResponseDto> saveCloneEntity(@PathVariable("id") String id, @RequestBody EntityRequestDto entityRequestDto, BindingResult bindingResult) {
 		Validations.validate(bindingResult);
-		return ResponseEntity.ok(entitiesServices.saveCloneEntity(id, entityRequestDto));
+		return ResponseEntity.ok(entitiesServices.saveCloneEntity(SaveCloneEntityRequestDto.builder().clonedEntityId(id).entityRequestDto(entityRequestDto).build()));
 	}
 	@GetMapping("/transaction-merchant-names/{id}")
 	public ResponseEntity<List<String>> getTransactionMerchantNames(@PathVariable("id") String instId){

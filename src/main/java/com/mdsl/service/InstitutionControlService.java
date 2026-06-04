@@ -14,6 +14,7 @@ import com.mdsl.model.mapper.InstitutionControlMapper;
 import com.mdsl.repository.CurrencyRepository;
 import com.mdsl.repository.InstitutionControlRepository;
 import com.mdsl.repository.InstitutionRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,8 @@ public class InstitutionControlService {
 	private final CurrencyRepository currencyRepository;
 	
 	private final InstitutionControlMapper institutionControlMapper;
-	
+	private final MakerCheckerEngine makerCheckerEngine;
+
 	public InstitutionControlResponseDto getInstitutionControlByInstId(String instId) {
 		Institution institution = this.institutionRepository.findById(instId)
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INSTITUTION_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
@@ -47,6 +49,9 @@ public class InstitutionControlService {
 	        }
 	        
 	        InstitutionControl savedInstitutionControl;
+	        if (makerCheckerEngine.processIfRequired(institutionControlRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+	        	return null;
+	        }
 	        if (requestInstitutionControl.isPresent()) { //Case of update
 	        	if(this.institutionControlRepository.existsByInstitutionIdAndRecordSeqIdNot(institutionControlRequestDto.getInstitutionId(), institutionControlRequestDto.getRecordSeqId())) {
 	        		throw new BusinessException(ResponseCode.INT_INSTITUTION_CONTROL_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
@@ -68,6 +73,9 @@ public class InstitutionControlService {
 	 public void deleteInstitutionControlByInstitutionId(String instId) {
 		 InstitutionControl institutionControl = this.institutionControlRepository.findByInstitutionId(instId)
 					.orElseThrow(() -> new BusinessException(ResponseCode.INT_INSTITUTION_CONTROL_NOT_FOUND, HttpStatus.NOT_FOUND));
+		 if (makerCheckerEngine.processIfRequired(instId, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			 return;
+		 }
 	     this.institutionControlRepository.delete(institutionControl);
 	 }
 

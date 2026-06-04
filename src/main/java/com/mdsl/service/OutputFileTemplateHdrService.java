@@ -89,6 +89,7 @@ public class OutputFileTemplateHdrService {
         
         OutputFileTemplateHdr saveOutputFileTemplateHdr;
         OutputFileTemplateHdr savedOutputFileTemplateHdr;
+        boolean isUpdate = false;
         
         if (requestOutputFileTemplateHdr.isPresent()) { //Case of update
             if (this.outputFileTemplateHdrRepository.existsByInstitutionIdAndOutputFileTypeAndOutputFileTypeAbbrAndOutputTemplateHdrIdNot(outputFileTemplateHdrRequestDto.getInstitutionId(), outputFileTemplateHdrRequestDto.getOutputFileType(), outputFileTemplateHdrRequestDto.getOutputFileTypeAbbr(), outputFileTemplateHdrRequestDto.getOutputTemplateHdrId())) {
@@ -99,12 +100,22 @@ public class OutputFileTemplateHdrService {
             saveOutputFileTemplateHdr.setCreatedDate(requestOutputFileTemplateHdr.get().getCreatedDate());
             saveOutputFileTemplateHdr.setUpdatedBy(Integer.valueOf(userDetails.getId()));
             saveOutputFileTemplateHdr.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
-            savedOutputFileTemplateHdr = this.outputFileTemplateHdrRepository.save(saveOutputFileTemplateHdr);
-            
+            isUpdate = true;
+        } else { //Case of create
+            if (this.outputFileTemplateHdrRepository.existsByInstitutionIdAndOutputFileTypeAndOutputFileTypeAbbr(outputFileTemplateHdrRequestDto.getInstitutionId(), outputFileTemplateHdrRequestDto.getOutputFileType(), outputFileTemplateHdrRequestDto.getOutputFileTypeAbbr())) {
+                throw new BusinessException(ResponseCode.CFG_OUTPUT_FILE_TEMPLATE_HDR_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
+            }
+            saveOutputFileTemplateHdr = this.outputFileTemplateHdrMapper.toEntity(outputFileTemplateHdrRequestDto);
+            saveOutputFileTemplateHdr.setCreatedBy(Integer.valueOf(userDetails.getId()));
+            saveOutputFileTemplateHdr.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+        }
+
+   		if (makerCheckerEngine.processIfRequired(outputFileTemplateHdrRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
+        savedOutputFileTemplateHdr = this.outputFileTemplateHdrRepository.save(saveOutputFileTemplateHdr);
+        if (isUpdate) {
             List<BankFilesOutput> bankFilesOutputs = this.bankFilesOutputRepository.findByOutputTemplateHdrId(savedOutputFileTemplateHdr.getOutputTemplateHdrId());
-       		if (makerCheckerEngine.processIfRequired(outputFileTemplateHdrRequestDto, OutputFileTemplateHdrService.class.getName(), "saveOutputFileTemplateHdr", "")) {
-    			return null;
-    		}
             for(BankFilesOutput bankFilesOutput : bankFilesOutputs) {
             	bankFilesOutput.setOutputFileType(savedOutputFileTemplateHdr.getOutputFileType());
             	bankFilesOutput.setOutputFileTypeAbbr(savedOutputFileTemplateHdr.getOutputFileTypeAbbr());
@@ -113,17 +124,6 @@ public class OutputFileTemplateHdrService {
             	
             	this.bankFilesOutputRepository.save(bankFilesOutput);
             }
-        } else { //Case of create
-            if (this.outputFileTemplateHdrRepository.existsByInstitutionIdAndOutputFileTypeAndOutputFileTypeAbbr(outputFileTemplateHdrRequestDto.getInstitutionId(), outputFileTemplateHdrRequestDto.getOutputFileType(), outputFileTemplateHdrRequestDto.getOutputFileTypeAbbr())) {
-                throw new BusinessException(ResponseCode.CFG_OUTPUT_FILE_TEMPLATE_HDR_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
-            }
-            saveOutputFileTemplateHdr = this.outputFileTemplateHdrMapper.toEntity(outputFileTemplateHdrRequestDto);
-            saveOutputFileTemplateHdr.setCreatedBy(Integer.valueOf(userDetails.getId()));
-            saveOutputFileTemplateHdr.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-       		if (makerCheckerEngine.processIfRequired(outputFileTemplateHdrRequestDto, OutputFileTemplateHdrService.class.getName(), "saveOutputFileTemplateHdr", "")) {
-    			return null;
-    		}
-            savedOutputFileTemplateHdr = this.outputFileTemplateHdrRepository.save(saveOutputFileTemplateHdr);
         }
         
         outputFileTemplateDetailsRepository.deleteByOutputTemplateHdrId(savedOutputFileTemplateHdr.getOutputTemplateHdrId());
@@ -203,7 +203,7 @@ public class OutputFileTemplateHdrService {
     	OutputFileTemplateHdr outputFileTemplateHdr = this.outputFileTemplateHdrRepository.findById(id).orElseThrow(() -> new BusinessException(ResponseCode.CFG_OUTPUT_TEMPLATE_HDR_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
     	this.bankFilesOutputRepository.deleteByOutputTemplateHdrId(outputFileTemplateHdr.getOutputTemplateHdrId());
     	outputFileTemplateDetailsRepository.deleteByOutputTemplateHdrId(outputFileTemplateHdr.getOutputTemplateHdrId());
-   		if (makerCheckerEngine.processIfRequired(id, OutputFileTemplateHdrService.class.getName(), "deleteOutputFileTemplateHdr", "")) {
+   		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return;
 		}
     	this.outputFileTemplateHdrRepository.delete(outputFileTemplateHdr);

@@ -7,6 +7,8 @@ import java.util.Optional;
 
 import javax.validation.Valid;
 
+import com.mdsl.utils.MakerCheckerEngine;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -20,23 +22,15 @@ import com.mdsl.model.dto.response.CardSchemeResponseDto;
 import com.mdsl.model.entity.CardScheme;
 import com.mdsl.model.mapper.CardSchemeMapper;
 import com.mdsl.repository.CardSchemeRepository;
-import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.enumerations.StatusEnum;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class CardSchemeService {
-
-
-	@Autowired
-	private CardSchemeRepository cardSchemeRepository;
-
-	@Autowired
-	private CardSchemeMapper cardSchemeMapper;
-    private final MakerCheckerEngine makerCheckerEngine;
+	private final CardSchemeRepository cardSchemeRepository;
+	private final CardSchemeMapper cardSchemeMapper;
+	private final MakerCheckerEngine makerCheckerEngine;
 
 	public List<CardSchemeResponseDto> fetchAllCardScheme() {
 
@@ -111,7 +105,11 @@ public class CardSchemeService {
 					cardScheme.setCreatedBy(String.valueOf(userDetails.getId()));
 				}
 			}
-			if (makerCheckerEngine.processIfRequired(request, CardSchemeService.class.getName(), "saveOrUpdateCardScheme", "")) {
+			if (makerCheckerEngine.processIfRequired(request, this.getClass().getName(), new Object() {
+			}
+					.getClass()
+					.getEnclosingMethod()
+					.getName(), "")) {
 				return null;
 			}
 			CardScheme saved = cardSchemeRepository.save(cardScheme);
@@ -125,7 +123,11 @@ public class CardSchemeService {
 	public void deleteCardSchemeById(String id) throws Exception {
 		cardSchemeRepository.findById(id)
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_CARDSCHEME_NOT_FOUND, HttpStatus.BAD_REQUEST));
-		if (makerCheckerEngine.processIfRequired(id, CardSchemeService.class.getName(), "deleteCardSchemeById", "")) {
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {
+		}
+				.getClass()
+				.getEnclosingMethod()
+				.getName(), "")) {
 			return;
 		}
 		cardSchemeRepository.deleteById(id);
@@ -135,7 +137,11 @@ public class CardSchemeService {
 		CardScheme cardScheme = cardSchemeRepository.findById(String.valueOf(changeStatusRequestDto.getIdString()))
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_CARDSCHEME_NOT_FOUND, HttpStatus.NOT_FOUND));
 		cardScheme.setStatus(changeStatusRequestDto.getStatus().charAt(0));
-		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, CardSchemeService.class.getName(), "changeStatus", "")) {
+		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, this.getClass().getName(), new Object() {
+		}
+				.getClass()
+				.getEnclosingMethod()
+				.getName(), "")) {
 			return null;
 		}
 		cardSchemeRepository.save(cardScheme);

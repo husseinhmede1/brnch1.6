@@ -24,6 +24,7 @@ import com.mdsl.repository.InstitutionAccountsRepository;
 import com.mdsl.repository.InstitutionRepository;
 import com.mdsl.repository.IssuerProfileRepository;
 import com.mdsl.repository.IssuerRelationRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,8 @@ public class IssuerProfileService {
 	private final InstitutionAccountsRepository institutionAccountsRepository;
 	
 	private final IssuerProfileMapper issuerProfileMapper;
-	
+	private final MakerCheckerEngine makerCheckerEngine;
+
 	public List<IssuerProfileResponseDto> getAllIssuerProfiles() {
 		List<IssuerProfileResponseDto> issuerProfileResponseDto = new ArrayList<IssuerProfileResponseDto>();
 		List<IssuerProfile> allIssuerProfiles = issuerProfileRepository.findAll(Sort.by(Sort.Direction.ASC, "profileId"));
@@ -86,8 +88,11 @@ public class IssuerProfileService {
 			throw new BusinessException(ResponseCode.CFG_INSTITUTION_ID_NOT_FOUND, HttpStatus.NOT_FOUND);
 		}
 		
+		if (makerCheckerEngine.processIfRequired(issuerProfileRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		if (requestIssuerProfile.isPresent()) {//Case of update
-			
+
 			if(issuerProfileRepository.existsByIssuerAcqProfileAndInstitutionIdAndProfileIdNot(issuerProfileRequestDto.getIssuerAcqProfile().toUpperCase().trim(), issuerProfileRequestDto.getInstitutionId(), issuerProfileRequestDto.getProfileId())) {
 				throw new BusinessException(ResponseCode.CFG_INSTITUTION_ID_NOT_FOUND, HttpStatus.NOT_FOUND);
 			}
@@ -126,6 +131,9 @@ public class IssuerProfileService {
 			throw new BusinessException (ResponseCode.ISS_PRF_USED_INST_ACCOUNT, HttpStatus.BAD_REQUEST);
 		}
 		List<IssuerRelation> issuerRelations = this.issuerRelationRepository.findByIssuerAcqProfileAndInstitutionId(issuerProfile.getIssuerAcqProfile(),institution.get().getInstitutionId());
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		for(IssuerRelation issuerRelation : issuerRelations) {
 			this.issuerRelationRepository.delete(issuerRelation);
 		}

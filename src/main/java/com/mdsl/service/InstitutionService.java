@@ -39,6 +39,7 @@ import com.mdsl.repository.SystemCodeRepository;
 import com.mdsl.repository.UserInstitutionMappingRepository;
 import com.mdsl.repository.UserRepository;
 import com.mdsl.repository.UserRoleRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.SequenceGeneratedClass;
 import com.mdsl.utils.enumerations.StatusEnum;
@@ -78,8 +79,11 @@ public class InstitutionService {
 	@Autowired 
 	private EntityLevelsMapper entityLevelsMapper; 
 	
-	@Autowired 
-	private InstitutionControlService institutionControlService; 
+	@Autowired
+	private InstitutionControlService institutionControlService;
+
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
 
 	@Value("${default.UserRole}")
 	private String defaultRole;
@@ -160,6 +164,9 @@ public class InstitutionService {
 		Optional<Institution> institution1 = institutionRepository
 				.findByInstitutionId(institutionRequestDto.getInstitutionId());
 
+		if (makerCheckerEngine.processIfRequired(institutionRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		if (!(institution1.isEmpty()) && (String.valueOf(institutionRequestDto.getUpdateFlag()).equals("1"))) {
 			List<Institution> insList = institutionRepository.findByInstitutionNameEqualsIgnoreCaseAndInstitutionId(
 					institutionRequestDto.getInstitutionName(), institutionRequestDto.getInstitutionId());
@@ -301,7 +308,10 @@ public class InstitutionService {
 			.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INSTITUTION_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
 		 
 		 List<EntityLevels> entityLevels = this.entityLevelsRepository.findByInstitution_InstitutionId(institution.getInstitutionId(), Sort.by("entityLevelId"));
-		 
+
+		 if (makerCheckerEngine.processIfRequired(instId, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			 return;
+		 }
 		 entityLevels.stream().forEach((entityLevel) -> {
 			 this.entityLevelsRepository.delete(entityLevel);
 		 });
@@ -335,6 +345,9 @@ public class InstitutionService {
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INSTITUTION_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
 
 		institution.setStatus(changeStatusRequestDto.getStatus().charAt(0));
+		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		institutionRepository.save(institution);
 
 		return "Status changed successfully";

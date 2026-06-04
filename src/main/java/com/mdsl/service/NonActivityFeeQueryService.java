@@ -150,10 +150,6 @@ public class NonActivityFeeQueryService {
 			if(userDetails!=null) {
 				nonActivityFeeQuery.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
 			}
-			if (makerCheckerEngine.processIfRequired(nonActivityFeeQueryRequestDto, NonActivityFeeQueryService.class.getName(), "saveOrUpdateNonActivityFeeQuery", "")) {
-				return null;
-			}
-			nonActivityFeeQuery = nonActivityFeeQueryRepository.save(nonActivityFeeQuery);
 		}
 
 		else {
@@ -176,11 +172,12 @@ public class NonActivityFeeQueryService {
 			nonActivityFeeQuery.setTransactionEntity(defaultTransactionId);
 			nonActivityFeeQuery.setInstitution(institution);
 
-			if (makerCheckerEngine.processIfRequired(nonActivityFeeQueryRequestDto, NonActivityFeeQueryService.class.getName(), "saveOrUpdateNonActivityFeeQuery", "")) {
-				return null;
-			}
-			nonActivityFeeQuery = nonActivityFeeQueryRepository.save(nonActivityFeeQuery);
 		}
+
+		if (makerCheckerEngine.processIfRequired(nonActivityFeeQueryRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
+		nonActivityFeeQuery = nonActivityFeeQueryRepository.save(nonActivityFeeQuery);
 
 		return nonActivityFeeQueryMapper.toDto(nonActivityFeeQuery);
 	}
@@ -188,7 +185,7 @@ public class NonActivityFeeQueryService {
 	public void deleteNonActivityFeeQuery(int id) throws Exception {
 		NonActivityFeeQuery nonActivityFeeQuery=nonActivityFeeQueryRepository.findById(id).orElseThrow(
 				() -> new BusinessException(ResponseCode.CFG_INVALID_MANUAL_TRANSACTION, HttpStatus.NOT_FOUND));
-		if (makerCheckerEngine.processIfRequired(id, NonActivityFeeQueryService.class.getName(), "deleteNonActivityFeeQuery", "")) {
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return;
 		}
 		nonActivityFeeQueryRepository.deleteById(id);

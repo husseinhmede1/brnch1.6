@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
 import com.mdsl.model.dto.request.DefaultTransactionIdRequestDto;
+import com.mdsl.model.dto.request.DeleteDefaultTransactionIdRequestDto;
+import com.mdsl.model.dto.request.SaveOrUpdateDefaultTransactionIdRequestDto;
 import com.mdsl.model.dto.response.DefaultTransactionIdResponseDto;
 import com.mdsl.model.entity.DefaultTransactionId;
 import com.mdsl.model.entity.Institution;
@@ -21,6 +23,7 @@ import com.mdsl.model.mapper.DefaultTransactionIdMapper;
 import com.mdsl.repository.DefaultTransactionIdRepository;
 import com.mdsl.repository.InstitutionRepository;
 import com.mdsl.repository.SystemCodeRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.enumerations.StatusEnum;
 
@@ -36,7 +39,13 @@ public class DefaultTransactionIdService {
 	@Autowired
 	private InstitutionRepository institutionRepository;
 
-	public DefaultTransactionIdResponseDto saveOrUpdateDefaultTransactionId(DefaultTransactionIdRequestDto defaultTransactionIdRequestDto, String instId) {
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
+
+	public DefaultTransactionIdResponseDto saveOrUpdateDefaultTransactionId(SaveOrUpdateDefaultTransactionIdRequestDto saveOrUpdateDefaultTransactionIdRequestDto) {
+
+		DefaultTransactionIdRequestDto defaultTransactionIdRequestDto = saveOrUpdateDefaultTransactionIdRequestDto.getDefaultTransactionIdRequestDto();
+		String instId = saveOrUpdateDefaultTransactionIdRequestDto.getInstId();
 
 		if(defaultTransactionIdRepository.existsByTransactionIdAndInstitution_InstitutionId(defaultTransactionIdRequestDto.getTransactionId(),instId) && !(String.valueOf(defaultTransactionIdRequestDto.getUpdateFlag()).equals("1"))){
 			throw new BusinessException(ResponseCode.TRANSACTION_ID_ALREADY_USED,HttpStatus.BAD_REQUEST);
@@ -73,6 +82,9 @@ public class DefaultTransactionIdService {
 //		if (!(defaultTransactionIdRequestDto.getTransactionId().trim().equals(""))
 //				&& !(defaultTransactionIdRequestDto.getTransactionId().equals(null))) {
 		
+		if (makerCheckerEngine.processIfRequired(saveOrUpdateDefaultTransactionIdRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		if (!(trans.isEmpty()) && (String.valueOf(defaultTransactionIdRequestDto.getUpdateFlag()).equals("1"))) {
 //			if (checkTransactionIdOnUpdate(defaultTransactionIdRequestDto.getTransactionId(), instId, trans.get().getRecordSequenceId())) {
 //				throw new BusinessException(ResponseCode.CFG_TRANS_ID_EXISTS_OR_FLAG_INVALID, HttpStatus.NOT_FOUND);
@@ -177,10 +189,15 @@ public class DefaultTransactionIdService {
 		return defaultTransactionIdResponseDtos;
 	}
 
-	public void deleteDefaultTransactionId(String defaultTransactionId,String instId) throws Exception {
+	public void deleteDefaultTransactionId(DeleteDefaultTransactionIdRequestDto deleteDefaultTransactionIdRequestDto) throws Exception {
 		// TODO Auto-generated method stub
+		String defaultTransactionId = deleteDefaultTransactionIdRequestDto.getDefaultTransactionId();
+		String instId = deleteDefaultTransactionIdRequestDto.getInstId();
 		DefaultTransactionId defaultTransactionId2=defaultTransactionIdRepository.findByTransactionIdAndInstitution_InstitutionId(defaultTransactionId,instId).orElseThrow(
 				() -> new BusinessException(ResponseCode.CFG_DEFAULT_TRANSACTION_NOT_FOUND, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(deleteDefaultTransactionIdRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		defaultTransactionIdRepository.delete(defaultTransactionId2);
 	}
 
@@ -307,12 +324,15 @@ public class DefaultTransactionIdService {
 		return defaultTransactionIdResponseDtos;
 	}
 
-	public String changeStatus(@Valid ChangeStatusRequestDto changeStatusRequestDto,String instId) {
+	public String changeStatus(@Valid ChangeStatusRequestDto changeStatusRequestDto) {
 		DefaultTransactionId transactionId = defaultTransactionIdRepository
-				.findByTransactionIdAndInstitution_InstitutionId(changeStatusRequestDto.getIdString(),instId)
+				.findByTransactionIdAndInstitution_InstitutionId(changeStatusRequestDto.getIdString(),changeStatusRequestDto.getInstId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_DEFAULT_TRANSACTION_NOT_FOUND,
 						HttpStatus.NOT_FOUND));
 		transactionId.setStatus(changeStatusRequestDto.getStatus().charAt(0));
+		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		defaultTransactionIdRepository.save(transactionId);
 		return "Status changed successfully";
 	}

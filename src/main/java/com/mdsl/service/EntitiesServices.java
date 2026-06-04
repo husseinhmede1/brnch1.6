@@ -2,8 +2,10 @@ package com.mdsl.service;
 
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
+import com.mdsl.model.dto.request.DeleteEntityRequestDto;
 import com.mdsl.model.dto.request.EntityFilterRequestDto;
 import com.mdsl.model.dto.request.EntityRequestDto;
+import com.mdsl.model.dto.request.SaveCloneEntityRequestDto;
 import com.mdsl.model.dto.response.EntitiesResponseDto;
 import com.mdsl.model.dto.response.PaginationResponseDto;
 import com.mdsl.model.entity.*;
@@ -13,6 +15,7 @@ import com.mdsl.swtch.model.dto.request.SwitchEntitiesRequestDto;
 import com.mdsl.swtch.service.SwitchEntitiesService;
 import com.mdsl.swtch.service.SwitchEntityAddressService;
 import com.mdsl.swtch.service.SwitchTerminalService;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.PaginationCommonCode;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.enumerations.EntityLevelEnum;
@@ -77,6 +80,8 @@ public class EntitiesServices {
 	private final SwitchEntityAddressService switchEntityAddressService;
 	
 	private final SwitchTerminalService switchTerminalService;
+
+	private final MakerCheckerEngine makerCheckerEngine;
 
 	private static final Logger logger = LoggerFactory.getLogger(EntitiesServices.class);
 
@@ -280,6 +285,10 @@ public class EntitiesServices {
 
 		Optional<Entities> entity = entityRepo.findByEntityIdAndInstitution(entityRequestDto.getEntityId(),institution);
 
+		if (makerCheckerEngine.processIfRequired(entityRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
+
 		if (entity.isPresent() && (String.valueOf(entityRequestDto.getUpdateFlag()).equals("1"))) {
 			if (entityRequestDto.getStatus() != '0') {
 
@@ -479,7 +488,9 @@ public class EntitiesServices {
 		}
 	}
 
-	public void deleteEntity(@RequestParam String entityId,String instId) throws Exception {
+	public void deleteEntity(DeleteEntityRequestDto deleteEntityRequestDto) throws Exception {
+		String entityId = deleteEntityRequestDto.getEntityId();
+		String instId = deleteEntityRequestDto.getInstId();
 		entityRepo.findByEntityIdAndInstitution_InstitutionId(entityId,instId)
 				.orElseThrow(() -> new BusinessException(ResponseCode.ENT_ENTITY_CODE_NOT_FOUND, HttpStatus.NOT_FOUND));
 		Institution institution = institutionRepository.findById(instId)
@@ -487,6 +498,10 @@ public class EntitiesServices {
 
 		SystemCode switchSystemCode = this.systemCodeRepository.findByCodePrefixAndCodeValueAndInstitution_InstitutionId("SWITCH_ENABLED", "SWITCH_ENABLED_FLAG", "SYSTEM")
 				.orElseThrow(() -> new BusinessException(ResponseCode.SYS_CODE_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
+
+		if (makerCheckerEngine.processIfRequired(deleteEntityRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 
 		List<Contact> contacts = contactRepository.findContactsByEntityAndInstitution(entityId,institution,
 				Sort.by(Sort.Direction.ASC, "contactId"));
@@ -708,14 +723,18 @@ public class EntitiesServices {
 				HttpStatus.OK);
 	}
 
-	public void changeStatus(@Valid ChangeStatusRequestDto changeStatusRequestDto,String instId) {
+	public void changeStatus(@Valid ChangeStatusRequestDto changeStatusRequestDto) {
 	    // Fetch the root entity or throw an exception if not found
-	    Entities rootEntity = entityRepo.findByEntityIdAndInstitution_InstitutionId(changeStatusRequestDto.getIdString(),instId)
+	    Entities rootEntity = entityRepo.findByEntityIdAndInstitution_InstitutionId(changeStatusRequestDto.getIdString(),changeStatusRequestDto.getInstId())
 	            .orElseThrow(() -> new BusinessException(ResponseCode.CFG_ENTITY_NOT_FOUND, HttpStatus.NOT_FOUND));
 
 	    // Validate the root entity before changing the status
 	    if (!this.validateEntityForChangeStatus(rootEntity)) {
 	        throw new BusinessException(ResponseCode.CFG_CANNOT_ENABLE_CHILD_ENTITY, HttpStatus.BAD_REQUEST);
+	    }
+
+	    if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+	        return;
 	    }
 
 	    // Call the recursive method to set the status for the entire hierarchy
@@ -1191,12 +1210,17 @@ public class EntitiesServices {
 	}
 
 
-	public EntitiesResponseDto saveCloneEntity(String clonedEntityId, EntityRequestDto entityRequestDto) {
+	public EntitiesResponseDto saveCloneEntity(SaveCloneEntityRequestDto saveCloneEntityRequestDto) {
+		String clonedEntityId = saveCloneEntityRequestDto.getClonedEntityId();
+		EntityRequestDto entityRequestDto = saveCloneEntityRequestDto.getEntityRequestDto();
 		Entities entity = createClonedEntity(entityRequestDto);
 
 		List<PaymentAccount> paymentAccounts = paymentAccountRepository.findPaymentAccountsByEntityId(clonedEntityId
 				);
 		System.out.println("Entity Id>>>>"+entity.getEntityId());
+		if (makerCheckerEngine.processIfRequired(saveCloneEntityRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		entityRepo.save(entity);
 		for(PaymentAccount paymentAccount: paymentAccounts){
 			PaymentAccount clonedPaymentAccount = new PaymentAccount(paymentAccount);

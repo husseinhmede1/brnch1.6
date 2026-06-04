@@ -28,6 +28,7 @@ import com.mdsl.repository.DefaultTransactionIdRepository;
 import com.mdsl.repository.InstitutionRepository;
 import com.mdsl.repository.TransactionChargesDetailsRepository;
 import com.mdsl.repository.TransactionGroupRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.enumerations.StatusEnum;
 
@@ -54,6 +55,9 @@ public class TransactionChargesDetailsService {
 
 	@Autowired
 	private TransactionChargesDetailsRepository transactionChargesDetailsRepository;
+
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
 
 	@Transactional
 	public TransactionGroupRequestDto saveOrUpdateTransactionGroup(TransactionGroupRequestDto transactionGroupRequestDto) {
@@ -87,6 +91,9 @@ public class TransactionChargesDetailsService {
 			transactionGroup.setUserCreate("user1");
 			transactionGroup.setDateCreate(new Date());
 			transactionGroup.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
+			if (makerCheckerEngine.processIfRequired(transactionGroupRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+				return null;
+			}
 			transactionGroupRepository.save(transactionGroup);
 
 			transactionGroupDto = transactionGroupMapper.toDto(transactionGroup);
@@ -169,6 +176,9 @@ public class TransactionChargesDetailsService {
 
 		TransactionGroup transactionGroup = transactionGroupRepository.findById(transactionGroupId).orElseThrow(
 				() -> new BusinessException(ResponseCode.CFG_INVALID_TRANSACTION_GROUP_ID, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(transactionGroupId, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		if (transactionGroup != null) {
 			List<TransactionChargeDetails> chargeDetails = chargesDetailsRepository
 					.findByTransactionGroupIdAndInstitution(transactionGroup.getTransactionGroupName(),transactionGroup.getInstitution().getInstitutionId());
@@ -186,6 +196,9 @@ public class TransactionChargesDetailsService {
 
 		TransactionChargeDetails transactionChargeDetail = transactionChargesDetailsRepository.findById(transactionchargedetailid).orElseThrow(
 				() -> new BusinessException(ResponseCode.CFG_INVALID_TRANSACTION_CHARGES_DETAILS_ID, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(transactionchargedetailid, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		if (transactionChargeDetail != null) {
 			transactionChargesDetailsRepository.deleteById(transactionchargedetailid);
 		}
@@ -230,6 +243,9 @@ public class TransactionChargesDetailsService {
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_TRANSACTION_GROUP_ID,
 						HttpStatus.NOT_FOUND));
 		transactionGroup.setStatus(changeStatusRequestDto.getStatus().charAt(0));
+		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		transactionGroupRepository.save(transactionGroup);
 
 		return "Status changed successfully";

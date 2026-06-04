@@ -92,7 +92,7 @@ public class IssuerRelationController {
 	@DeleteMapping("/{id}")
 	public void deleteIssuerRelation(@PathVariable(value="id") int id) {
 		try {
-			this.issueRelationService.deleteIssuerRelation(id);
+			this.issueRelationService.deleteIssuerRelation(id, null);
 		} catch (BusinessException e) {
 		    throw new BusinessException (e.getMessage(), e.getHttpStatus());
 		} catch (Exception e) {

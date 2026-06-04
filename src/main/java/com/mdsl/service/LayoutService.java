@@ -194,10 +194,6 @@ public class LayoutService {
             saveLayout.setCreatedBy(userDetails.getId());
             saveLayout.setCreatedDate(new Timestamp(System.currentTimeMillis()));
             saveLayout.setInstId(layoutRequestDto.getInstId());
-			if (makerCheckerEngine.processIfRequired(layoutRequestDto, LayoutService.class.getName(), "saveLayout", "")) {
-				return null;
-			}
-            saveLayout = layoutRepository.save(saveLayout);
 
             action = "create";
             description = "Created Input Output Layout : " + layoutRequestDto.getLayoutName();
@@ -224,14 +220,15 @@ public class LayoutService {
             saveLayout.setCreatedDate(layout.getCreatedDate());
             saveLayout.setUpdatedBy(userDetails.getId());
             saveLayout.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
-			if (makerCheckerEngine.processIfRequired(layoutRequestDto, LayoutService.class.getName(), "saveLayout", "")) {
-				return null;
-			}
-            saveLayout = layoutRepository.save(saveLayout);
 
             action = "update";
             description = "Updated Input Output Layout : " + layoutRequestDto.getLayoutName();
         }
+
+		if (makerCheckerEngine.processIfRequired(layoutRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
+        saveLayout = layoutRepository.save(saveLayout);
 
         //Save layout Details
 
@@ -405,7 +402,7 @@ public class LayoutService {
         if (jobTaskRepository.existsByLayout(String.valueOf(layout.getLayoutId())) > 0) {
             throw new BusinessException(ResponseCode.CFG_STATUS_NOT_CHANGED, HttpStatus.BAD_REQUEST);
         }
-		if (makerCheckerEngine.processIfRequired(changeLayoutStatusRequestDto, LayoutService.class.getName(), "changeLayoutStatus", "")) {
+		if (makerCheckerEngine.processIfRequired(changeLayoutStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return;
 		}
         layoutRepository.updateLayoutStatus(changeLayoutStatusRequestDto.getId(), changeLayoutStatusRequestDto.getStatus().charAt(0), userDetails.getId());
@@ -422,7 +419,7 @@ public class LayoutService {
         if (jobTaskRepository.existsByLayout(String.valueOf(layout.getLayoutId())) > 0) {
             throw new BusinessException(ResponseCode.CFG_LAYOUT_NO_DELETE, HttpStatus.BAD_REQUEST);
         }
-		if (makerCheckerEngine.processIfRequired(deleteLayoutRequestDto, LayoutService.class.getName(), "deleteLayout", "")) {
+		if (makerCheckerEngine.processIfRequired(deleteLayoutRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return;
 		}
         layoutDetailsRepository.deleteAllByLayoutId( deleteLayoutRequestDto.getLayoutId());

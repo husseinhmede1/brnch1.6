@@ -29,6 +29,7 @@ import com.mdsl.repository.InstitutionRepository;
 import com.mdsl.repository.RoleActivityRepository;
 import com.mdsl.repository.RoleRepository;
 import com.mdsl.repository.UserRoleRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.enumerations.StatusEnum;
 
@@ -44,6 +45,7 @@ public class RoleService {
 	private final ActivityRepository activityRepository;
 	// private final BranchRepository branchRepository;
 	private final UserService userService;
+	private final MakerCheckerEngine makerCheckerEngine;
 	private final RoleMapper roleMapper;
 	private final RoleActivityMapper roleActivityMapper;
 	private final ActivityMapper activityMapper;
@@ -235,7 +237,7 @@ public class RoleService {
 	 * is equal to 0, we create If role id is available we update The role name is
 	 * unique The transactions are logged in table MD_ADT_BKD_LOG
 	 */
-	public RoleResponseDto saveRole(RoleRequestDto roleRequestDto, String remoteAddress, String instId) {
+	public RoleResponseDto saveRole(RoleRequestDto roleRequestDto) {
 		String action = "";
 		String description = "";
 		Role saveRole;
@@ -247,6 +249,9 @@ public class RoleService {
 //		Institution institution = institutionRepository.findById(instId).orElseThrow(() -> new BusinessException (ResponseCode.CFG_INVALID_INST, HttpStatus.NOT_FOUND));
 		// Optional<Branch> branch = branchRepository.findById(branchId);
 
+		if (makerCheckerEngine.processIfRequired(roleRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		if (Objects.isNull(roleRequestDto.getRoleId()) || roleRequestDto.getRoleId() == 0) {// create role
 //			if (roleRepository.existsByRoleNameAndInstitution(roleRequestDto.getRoleName(), institution)){
 //				throw new BusinessException(ResponseCode.CFG_ROLE_ALREADY_EXIST, HttpStatus.CONFLICT);
@@ -351,7 +356,7 @@ public class RoleService {
 //		//backEndLogService.logBackEndActivity(userService.getEntityUserById(userDetails.getId()), LoggingCategoriesEnum.CONFIGURATION.getValue(), ("Role-delete"), "Deleted role [" + role.getRoleName() + " - " + role.getRoleDesc() + "]", remoteAddress, "", institution, branch.get());
 //	}
 
-	public void deleteRole(int roleId, String remoteAddress) {
+	public void deleteRole(int roleId) {
 		UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 //		Institution institution = institutionRepository.findById(instId).orElseThrow(() -> new BusinessException (ResponseCode.CFG_INVALID_INST, HttpStatus.NOT_FOUND)); 
@@ -363,6 +368,9 @@ public class RoleService {
 			throw new BusinessException(ResponseCode.ROL_ROLE_NO_DELETE, HttpStatus.CONFLICT);
 		}
 
+		if (makerCheckerEngine.processIfRequired(roleId, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		roleActivityRepository.deleteByRole(role);
 		roleRepository.deleteById(roleId);
 		// backEndLogService.logBackEndActivity(userService.getEntityUserById(userDetails.getId()),
@@ -391,7 +399,7 @@ public class RoleService {
 //	//	backEndLogService.logBackEndActivity(userService.getEntityUserById(userDetails.getId()), LoggingCategoriesEnum.CONFIGURATION.getValue(), ("Role-status-change"), "Status changed for role [" + role.getRoleName() + " - " + role.getRoleDesc() + "]", remoteAddress, changeRoleStatusRequestDto.toString(), institution, branch.get());
 //	}
 
-	public String changeRoleStatus(ChangeStatusRequestDto changeRoleStatusRequestDto, String remoteAddress) {
+	public String changeRoleStatus(ChangeStatusRequestDto changeRoleStatusRequestDto) {
 		UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 
@@ -404,6 +412,9 @@ public class RoleService {
 
 		Date currentDate = new Date();
 
+		if (makerCheckerEngine.processIfRequired(changeRoleStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		roleRepository.updateRoleStatus(changeRoleStatusRequestDto.getId(),
 				changeRoleStatusRequestDto.getStatus().charAt(0), userDetails.getId(), currentDate);
 

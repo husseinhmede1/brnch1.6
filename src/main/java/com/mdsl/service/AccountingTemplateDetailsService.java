@@ -118,7 +118,13 @@ public class AccountingTemplateDetailsService
                 destinationInstitution = institutionRepository.findById(dto.getDestinationInstitution())
                         .orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_INST, HttpStatus.NOT_FOUND));
             }
-
+            if (makerCheckerEngine.processIfRequired(dto, this.getClass().getName(), new Object() {
+            }
+                    .getClass()
+                    .getEnclosingMethod()
+                    .getName(), "")) {
+                return null;
+            }
             AccountingTemplateDetails entityToSave = accountingTemplateDetailsMapper.toEntity(dto);
 
             if (existingDetails.isPresent()) {
@@ -157,7 +163,11 @@ public class AccountingTemplateDetailsService
 
     public void deleteAccountingTemplateDetails(final int id) {
         AccountingTemplateDetails accountingTemplateDetails = this.accountingTemplateDetailsRepository.findById(id).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_ACCOUNTING_TEMPLATE_DTL, HttpStatus.NOT_FOUND));
-        if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), "deleteAccountingTemplateDetails", "")) {
+        if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {
+        }
+                .getClass()
+                .getEnclosingMethod()
+                .getName(), "")) {
             return;
         }
         this.accountingTemplateDetailsRepository.delete(accountingTemplateDetails);

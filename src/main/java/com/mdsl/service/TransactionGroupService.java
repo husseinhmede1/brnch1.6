@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
+import com.mdsl.model.dto.request.SaveOrUpdateTransactionGroupRequestDto;
 import com.mdsl.model.dto.request.TransactionChargesDetailDto;
 import com.mdsl.model.dto.request.TransactionGroupRequestDto;
 import com.mdsl.model.dto.response.TransactionGroupDto;
@@ -30,6 +31,7 @@ import com.mdsl.repository.DefaultTransactionIdRepository;
 import com.mdsl.repository.InstitutionRepository;
 import com.mdsl.repository.TransactionChargesDetailsRepository;
 import com.mdsl.repository.TransactionGroupRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.enumerations.StatusEnum;
 
@@ -60,7 +62,10 @@ public class TransactionGroupService  {
 	
 	@Autowired
 	private ActivityPackageDetailRepository activityPackageDetailRepository;
-	
+
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
+
 //	public List viewTransactionGroup() {
 //		// TODO Auto-generated method stub
 //		List<TransactionGroup> transactionGroups = transactionGroupRepository.findAll();
@@ -125,9 +130,12 @@ public class TransactionGroupService  {
 	
 	
 	public TransactionGroupRequestDto saveOrUpdateTransactionGroup(
-			TransactionGroupRequestDto transactionGroupRequestDto,String institutionId) {
+			SaveOrUpdateTransactionGroupRequestDto saveOrUpdateTransactionGroupRequestDto) {
 
 		// TODO Auto-generated method stub
+
+		TransactionGroupRequestDto transactionGroupRequestDto = saveOrUpdateTransactionGroupRequestDto.getTransactionGroupRequestDto();
+		String institutionId = saveOrUpdateTransactionGroupRequestDto.getInstitutionId();
 
 		TransactionChargeDetails chargeDetails = new TransactionChargeDetails();
 		UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext()
@@ -141,6 +149,10 @@ public class TransactionGroupService  {
 		}
 		Institution institution = institutionRepository.findById(transactionGroupRequestDto.getInstitutionId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_INST, HttpStatus.NOT_FOUND));
+
+		if (makerCheckerEngine.processIfRequired(saveOrUpdateTransactionGroupRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 
 		TransactionGroup transactionGroup = new TransactionGroup();
 		if (institution != null) {
@@ -277,8 +289,11 @@ public class TransactionGroupService  {
 
 		TransactionGroup transactionGroup = transactionGroupRepository.findById(transactionGroupId).orElseThrow(
 				() -> new BusinessException(ResponseCode.CFG_INVALID_TRANSACTION_GROUP_ID, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(transactionGroupId, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		if (transactionGroup != null) {
-			List<TransactionChargeDetails> chargeDetails = chargesDetailsRepository.findByTransactionGroupIdAndInstitution(transactionGroup.getTransactionGroupName(),transactionGroup.getInstitution().getInstitutionId());			
+			List<TransactionChargeDetails> chargeDetails = chargesDetailsRepository.findByTransactionGroupIdAndInstitution(transactionGroup.getTransactionGroupName(),transactionGroup.getInstitution().getInstitutionId());
 			List<ActivityPackageDetail> activityPackageDetails= activityPackageDetailRepository.findByTranGroupAndInstitution_InstitutionId(transactionGroup.getTransactionGroupName(),transactionGroup.getInstitution().getInstitutionId());		
 			if((chargeDetails.size() > 0) || (activityPackageDetails.size()>0)) {
 //				throw new BusinessException(ResponseCode.REFERENCE_EXISTS, HttpStatus.NOT_FOUND);
@@ -323,6 +338,9 @@ public class TransactionGroupService  {
 		TransactionGroup transactionGroup = transactionGroupRepository.findById(changeStatusRequestDto.getId()).orElseThrow(
 				() -> new BusinessException(ResponseCode.CFG_INVALID_TRANSACTION_GROUP_ID, HttpStatus.NOT_FOUND));
 		transactionGroup.setStatus(changeStatusRequestDto.getStatus().charAt(0));
+		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		transactionGroupRepository.save(transactionGroup);
 		
 	}

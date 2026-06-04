@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.mdsl.utils.MakerCheckerEngine;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,6 +36,7 @@ public class AccountingTemplateHDRSubService {
 	private final AccountingTemplateDetailsRepository accountingTemplateDetailsRepository;
 	private final InstitutionRepository institutionRepository;
 	private final BankCodeRepository bankCodeRepository;
+    private final MakerCheckerEngine makerCheckerEngine;
 	
 	private final AccountingTemplateHDRSubMapper accountingTemplateHDRSubMapper;
 	
@@ -101,7 +103,6 @@ public class AccountingTemplateHDRSubService {
                 entityToSave.setCreatedDate(existing.getCreatedDate());
                 entityToSave.setUpdatedBy(Integer.valueOf(userDetails.getId()));
                 entityToSave.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
-                savedEntity = this.accountingTemplateHDRSubRepository.save(entityToSave);
             } else {
                 if (this.accountingTemplateHDRSubRepository.existsByInstitutionIdAndBankCodeAndAcctTemplateHdrId(
                         institutionId,
@@ -120,9 +121,11 @@ public class AccountingTemplateHDRSubService {
                 }
                 entityToSave.setCreatedBy(Integer.valueOf(userDetails.getId()));
                 entityToSave.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-
-                savedEntity = this.accountingTemplateHDRSubRepository.save(entityToSave);
             }
+            if (makerCheckerEngine.processIfRequired(accountingTemplateHDRSubRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+                return null;
+            }
+            savedEntity = this.accountingTemplateHDRSubRepository.save(entityToSave);
             return this.accountingTemplateHDRSubMapper.toDto(savedEntity);
         } catch (BusinessException ex) {
             throw ex;
@@ -141,6 +144,9 @@ public class AccountingTemplateHDRSubService {
                             ResponseCode.CFG_INVALID_ACCOUNT_TEMPLATE_SUB,
                             HttpStatus.NOT_FOUND
                     ));
+            if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+                return;
+            }
             accountingTemplateDetailsRepository.deleteByAcctTemplateHdrSubId(accountingTemplateHDRSub.getAcctTemplateHdrSubId());
             accountingTemplateHDRSubRepository.delete(accountingTemplateHDRSub);
         } catch (BusinessException ex) {

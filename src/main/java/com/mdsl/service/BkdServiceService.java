@@ -6,6 +6,7 @@ import java.util.Locale;
 
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.response.FileTypesResponseDto;
+import com.mdsl.utils.MakerCheckerEngine;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,7 @@ public class BkdServiceService {
 	private final DatabaseMessageSource databaseMessageSource;
 	private final CommonService commonService;
 	private final UserService userService;
+	private final MakerCheckerEngine makerCheckerEngine;
 		
 	/*
 	 * Returns the list of all bkd services
@@ -73,11 +75,17 @@ public class BkdServiceService {
 	 * The transactions are logged in table MD_ADT_BKD_LOG
 	 */
 	@CacheEvict
-	public BkdServiceResponseDto updateBkdServiceBatchSize(BkdServiceRequestDto bkdServiceRequestDto, int instId, String remoteAddress) {
+	public BkdServiceResponseDto updateBkdServiceBatchSize(BkdServiceRequestDto bkdServiceRequestDto) {
 
 		UserDetailsImpl userDetails = commonService.getLoggedInUser();
 		BKDService bkdService = this.bkdServiceRepository.findById(bkdServiceRequestDto.getServiceId()).orElseThrow(()-> new BusinessException(ResponseCode.CFG_INVALID_SERVICE_ID, HttpStatus.NOT_FOUND));
-		
+		if (makerCheckerEngine.processIfRequired(bkdServiceRequestDto, this.getClass().getName(), new Object() {
+		}
+				.getClass()
+				.getEnclosingMethod()
+				.getName(), "")) {
+			return null;
+		}
 		bkdServiceRepository.updateBatchSize(bkdService.getServiceId(), bkdServiceRequestDto.getBatchSize(), userDetails.getId());
 		return bkdServiceMapper.toDto(bkdService);
 	}

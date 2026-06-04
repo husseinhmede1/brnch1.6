@@ -69,7 +69,7 @@ public class ProvinceService {
 			saveProvince.setCntryCode(country);
 			saveProvince.setDate(province.getDate());
 		}
-   		if (makerCheckerEngine.processIfRequired(provinceResquestDto, ProvinceService.class.getName(), "saveOrUpdateProvince", "")) {
+   		if (makerCheckerEngine.processIfRequired(provinceResquestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return null;
 		}
 		saveProvince = provinceRepository.save(saveProvince);
@@ -79,7 +79,7 @@ public class ProvinceService {
 
 	public void deleteProvince(int provinceId)throws Exception {
 		 Province province=provinceRepository.findById(provinceId).orElseThrow(() -> new BusinessException(ResponseCode.CFG_PROVINCE_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
-   		if (makerCheckerEngine.processIfRequired(provinceId, ProvinceService.class.getName(), "deleteProvince", "")) {
+   		if (makerCheckerEngine.processIfRequired(provinceId, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return;
 		}
 		provinceRepository.deleteById(provinceId);

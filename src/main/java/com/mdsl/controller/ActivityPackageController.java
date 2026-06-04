@@ -136,6 +136,6 @@ public class ActivityPackageController {
 	public ResponseEntity<@Valid ActivityEntityMappingRequestDto> mapPackageWithEntity(
 			@Valid @RequestBody ActivityEntityMappingRequestDto requestDto, BindingResult bindingResult,HttpServletRequest request) {
 		Validations.validate(bindingResult);
-		return ResponseEntity.ok(activityPackageService.mapPackageWithEntity(requestDto,requestDto.getInstId()));
+		return ResponseEntity.ok(activityPackageService.mapPackageWithEntity(requestDto));
 	}
 }

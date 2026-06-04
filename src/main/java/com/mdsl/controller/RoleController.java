@@ -68,7 +68,7 @@ public class RoleController {
 	public ResponseEntity saveRole(@Valid @RequestBody RoleRequestDto role, BindingResult bindingResult,HttpServletRequest request) {
 		Validations.validate(bindingResult);
 		try {
-			return ResponseEntity.ok(roleService.saveRole(role, request.getRemoteAddr(), request.getHeader("instId")));
+			return ResponseEntity.ok(roleService.saveRole(role));
 		} catch(BusinessException ex){
 			logger.error("@RoleController#saveRole-business exception "+ex.toString());
 			throw new BusinessException(ex.getMessage(),ex.getHttpStatus());
@@ -87,7 +87,7 @@ public class RoleController {
 	public ResponseEntity<String> deleteRole(@PathVariable(value = "id") int roleId, HttpServletRequest request) {
 		
 		try {
-			roleService.deleteRole(roleId, request.getRemoteAddr());
+			roleService.deleteRole(roleId);
 			String message = "An item is deleted with id : " + roleId;
 			return ResponseEntity.ok(message);
 		} catch(BusinessException ex){
@@ -102,6 +102,6 @@ public class RoleController {
 	@PostMapping("/status-change")
 	public ResponseEntity<String> changeRoleStatus(@Valid @RequestBody ChangeStatusRequestDto changeRoleStatusRequestDTO,BindingResult bindingResult, HttpServletRequest request) {
 		Validations.validate(bindingResult);
-		return ResponseEntity.ok(roleService.changeRoleStatus(changeRoleStatusRequestDTO, request.getRemoteAddr()));
+		return ResponseEntity.ok(roleService.changeRoleStatus(changeRoleStatusRequestDTO));
 	}
 }

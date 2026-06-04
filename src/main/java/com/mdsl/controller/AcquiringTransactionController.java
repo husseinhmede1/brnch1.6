@@ -65,8 +65,9 @@ public class AcquiringTransactionController {
 				institutionId = String.valueOf(instId);
 			}
 			if (institutionId != null) {
+				acquiringTransactionRequestDto.setInstitutionId(instId);
 				return ResponseEntity.ok(acquiringTransactionService
-						.saveOrUpdateAcquiringTransaction(acquiringTransactionRequestDto, institutionId));
+						.saveOrUpdateAcquiringTransaction(acquiringTransactionRequestDto));
 			} else {
 				return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Institution Id not found");
 			}

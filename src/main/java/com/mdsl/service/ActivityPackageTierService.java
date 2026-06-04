@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.mdsl.utils.MakerCheckerEngine;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -29,27 +31,20 @@ import com.mdsl.repository.SystemCodeRepository;
 import com.mdsl.utils.ResponseCode;
 
 @Service
+@RequiredArgsConstructor
 public class ActivityPackageTierService {
-	public ActivityPackageTierService() {
-	}
 
-	@Autowired
-	private InstitutionRepository institutionRepository;
+	private final InstitutionRepository institutionRepository;
 
-	@Autowired
-	private ActivityPackageDetailRepository activityPackageDetailRepository;
+	private final ActivityPackageDetailRepository activityPackageDetailRepository;
 
-	@Autowired
-	private ActivityPackageTierRepository activityPackageTierRepository;
+	private final ActivityPackageTierRepository activityPackageTierRepository;
 
-	@Autowired
-	private FrequencyMasterRepository frequencyMasterRepository;
-
-	@Autowired
-	private ActivityPackageTierMapper activityPackageTierMapper;
+	private final ActivityPackageTierMapper activityPackageTierMapper;
 	
-	@Autowired
-	private SystemCodeRepository systemCodeRepository;
+	private final SystemCodeRepository systemCodeRepository;
+	
+	private final MakerCheckerEngine makerCheckerEngine;
 
 	public List<ActivityPackageTierResponseDto> getAllActivationPackageTierByPkgDetailId(int pkgDetailId) {
 		try {
@@ -126,7 +121,13 @@ public class ActivityPackageTierService {
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_INSTITUTION_ID, HttpStatus.NOT_FOUND));
 
 		ActivityPackageTier tier;
-
+		if (makerCheckerEngine.processIfRequired(dto, this.getClass().getName(), new Object() {
+		}
+				.getClass()
+				.getEnclosingMethod()
+				.getName(), "")) {
+			return null;
+		}
 		if (dto.getActivityPackageTierId() != 0) {
 			tier = activityPackageTierRepository.findById(dto.getActivityPackageTierId())
 					.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_ACT_FEE_PKG_TIER_ID, HttpStatus.NOT_FOUND));
@@ -204,6 +205,13 @@ public class ActivityPackageTierService {
 
 	public String deleteActivationPackageTier(int pkgTierId) {
 		try {
+			if (makerCheckerEngine.processIfRequired(pkgTierId, this.getClass().getName(), new Object() {
+			}
+					.getClass()
+					.getEnclosingMethod()
+					.getName(), "")) {
+				return null;
+			}
 			activityPackageTierRepository.deleteById(pkgTierId);
 			return "Charge Detail Deleted Successfully";
 		} catch (Exception e) {

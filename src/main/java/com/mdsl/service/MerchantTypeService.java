@@ -68,7 +68,7 @@ public class MerchantTypeService {
 					.orElseThrow(() -> new BusinessException(ResponseCode.MRC_MERCHANT_TYPE_NOT_FOUND, HttpStatus.NOT_FOUND));
 			merchantType.setMerchantTypeName(merchantTypeRequestDto.getMerchantTypeName());
 		}
-		if (makerCheckerEngine.processIfRequired(merchantTypeRequestDto, MerchantTypeService.class.getName(), "saveOrUpdateMerchantType", "")) {
+		if (makerCheckerEngine.processIfRequired(merchantTypeRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return null;
 		}
 		finalList=merchantTypeRepository.save(merchantType);
@@ -79,7 +79,7 @@ public class MerchantTypeService {
 	public void deleteMerchantTypeById(int id) 
 	{
 		 merchantTypeRepository.findById(id).orElseThrow(() -> new BusinessException(ResponseCode.MRC_MERCHANT_TYPE_NOT_FOUND, HttpStatus.NOT_FOUND));
-			if (makerCheckerEngine.processIfRequired(id, MerchantTypeService.class.getName(), "deleteMerchantTypeById", "")) {
+			if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 				return ;
 			}
 		 merchantTypeRepository.deleteById(id);

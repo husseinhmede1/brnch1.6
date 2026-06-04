@@ -125,7 +125,7 @@ public class MCCListService {
 			mccList.setDescription(mccListRequestDto.getDescription());
 		//	mccList.setCreatedBy(Integer.valueOf(userDetails.getId()).toString());
 		}
-		if (makerCheckerEngine.processIfRequired(mccListRequestDto, MCCListService.class.getName(), "saveOrUpdateMccList", "")) {
+		if (makerCheckerEngine.processIfRequired(mccListRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return null;
 		}
 		finalList = mccListRepository.save(mccList);
@@ -185,7 +185,7 @@ public class MCCListService {
 		List<Terminal> terminals = terminalRepository.findByMccList(mccList.getMcc());
 		List<Entities> entities = entitiesRepository.findByDefaultMCC(mccList.getMcc());
 		if ((terminals.isEmpty()) && (entities.isEmpty())) {
-			if (makerCheckerEngine.processIfRequired(id, MCCListService.class.getName(), "deleteMccListById", "")) {
+			if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 				return;
 			}
 			mccListRepository.deleteById(id);

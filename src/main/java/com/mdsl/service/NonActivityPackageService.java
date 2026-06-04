@@ -110,7 +110,6 @@ public class NonActivityPackageService {
 	public NonActivityPackageResponseDto saveOrUpdateNonActivityPackage(
 			NonActivityPackageRequestDto nonActivityPackageRequestDto) {
 
-		NonActivityPackage pkg = null;
 		NonActivityPackage nonActivityPackage;
 		
 		UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext()
@@ -124,18 +123,14 @@ public class NonActivityPackageService {
 //		if (!(nonActivityPackageRequestDto.getPackageId().trim().equals(""))
 //				&& !(nonActivityPackageRequestDto.getPackageId().equals(null))) {
 		
-		if(!(nonActivityPackage1.isEmpty()) && (String.valueOf(nonActivityPackageRequestDto.getUpdateFlag()).equals("1"))) {
+		if(nonActivityPackage1.isPresent() && (String.valueOf(nonActivityPackageRequestDto.getUpdateFlag()).equals("1"))) {
 
-			pkg = nonActivityPackageRepository.findByPackageIdAndInstitution_institutionId(nonActivityPackageRequestDto.getPackageId(), institution.getInstitutionId())
+			nonActivityPackage = nonActivityPackageRepository.findByPackageIdAndInstitution_institutionId(nonActivityPackageRequestDto.getPackageId(), institution.getInstitutionId())
 					.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_ACTIVITY, HttpStatus.NOT_FOUND));
 
-			pkg.setPackageName(nonActivityPackageRequestDto.getPackageName());
-			pkg.setInstitution(institution);
+			nonActivityPackage.setPackageName(nonActivityPackageRequestDto.getPackageName());
+			nonActivityPackage.setInstitution(institution);
 		//	pkg.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
-			if (makerCheckerEngine.processIfRequired(nonActivityPackageRequestDto, NonActivityPackageService.class.getName(), "saveOrUpdateNonActivityPackage", "")) {
-				return null;
-			}
-			nonActivityPackage = nonActivityPackageRepository.save(pkg);
 
 		}
 
@@ -144,7 +139,7 @@ public class NonActivityPackageService {
 				throw new BusinessException(ResponseCode.INVALID_ACT_FEE_PKG_ID, HttpStatus.NOT_FOUND);
 			}
 
-			if(!(nonActivityPackage1.isEmpty())){
+			if(nonActivityPackage1.isPresent()){
 				throw new BusinessException(ResponseCode.ACTIVITY_FEE_PACKAGE_NOT_FOUND, HttpStatus.NOT_FOUND);
 			}
 			if((String.valueOf(nonActivityPackageRequestDto.getUpdateFlag()).equals("1"))){
@@ -159,11 +154,11 @@ public class NonActivityPackageService {
 			if(userDetails!=null) {
 				nonActivityPackage.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
 			}
-			if (makerCheckerEngine.processIfRequired(nonActivityPackageRequestDto, NonActivityPackageService.class.getName(), "saveOrUpdateNonActivityPackage", "")) {
-				return null;
-			}
-			nonActivityPackage = nonActivityPackageRepository.save(nonActivityPackage);
 		}
+		if (makerCheckerEngine.processIfRequired(nonActivityPackageRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
+		nonActivityPackage = nonActivityPackageRepository.save(nonActivityPackage);
 		return nonActivityPackageMapper.toDto(nonActivityPackage);
 	}
 
@@ -173,7 +168,7 @@ public class NonActivityPackageService {
 	    // Verify it exists first
 	    nonActivityPackageRepository.findByPackageIdAndInstitution_institutionId(deleteNonActivityPackageRequestDto.getId(),deleteNonActivityPackageRequestDto.getInstId())
 	        .orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_ACTIVITY, HttpStatus.NOT_FOUND));
-		if (makerCheckerEngine.processIfRequired(deleteNonActivityPackageRequestDto, NonActivityPackageService.class.getName(), "deleteNonActivityPackage", "")) {
+		if (makerCheckerEngine.processIfRequired(deleteNonActivityPackageRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return;
 		}
 	    // Delete details first (bulk delete - already working)
@@ -188,7 +183,7 @@ public class NonActivityPackageService {
 				.findByPackageIdAndInstitution_institutionId(String.valueOf(changeStatusRequestDto.getIdString()), changeStatusRequestDto.getInstId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_ACTIVITY, HttpStatus.NOT_FOUND));
 		nonActivityPackage.setStatus(changeStatusRequestDto.getStatus().charAt(0));
-		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, NonActivityPackageService.class.getName(), "changeStatus", "")) {
+		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return null;
 		}
 		nonActivityPackageRepository.save(nonActivityPackage);
@@ -214,7 +209,7 @@ public class NonActivityPackageService {
 					.collect(Collectors.toList());
 
 			List<String> entityIds = oldEntityAssign.stream().map(Entities::getEntityId).collect(Collectors.toList());
-			if (makerCheckerEngine.processIfRequired(requestDto, NonActivityPackageService.class.getName(), "mapPackageWithEntity", "")) {
+			if (makerCheckerEngine.processIfRequired(requestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 				return null;
 			}
 			entityIds.removeAll(requestDto.getEntities());

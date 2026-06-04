@@ -57,6 +57,7 @@ import com.mdsl.repository.SystemCodeRepository;
 import com.mdsl.repository.TaskExecutionLogRepository;
 import com.mdsl.repository.TaskRepository;
 import com.mdsl.repository.UserRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.enumerations.CodePrefixEnum;
 import com.mdsl.utils.enumerations.StatusEnum;
@@ -88,6 +89,7 @@ public class ImportMerchantsService {
     private final UserRepository userRepository;
     private final DatabaseMessageSource databaseMessageSource;
     private final SystemCodeService systemCodeService;
+    private final MakerCheckerEngine makerCheckerEngine;
 
 
     public RunTaskResponseDto uploadMerchantFiles(ImportRequestDto importRequestDto) {
@@ -108,6 +110,10 @@ public class ImportMerchantsService {
                 .getAuthentication().getPrincipal();
         User user = this.userRepository.findById(userDetails.getId())
                 .orElseThrow(() -> new BusinessException(ResponseCode.USR_USER_NOT_FOUND, HttpStatus.NOT_FOUND));
+
+        if (makerCheckerEngine.processIfRequired(importRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+            return null;
+        }
 
         TaskExecutionLog saveTaskExecutionLog = new TaskExecutionLog();
         TaskExecutionLog savedTaskExecutionLog = new TaskExecutionLog();

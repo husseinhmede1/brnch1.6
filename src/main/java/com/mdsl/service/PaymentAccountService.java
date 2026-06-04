@@ -153,7 +153,7 @@ public class PaymentAccountService {
 			paymentAccount.setEntityObject(entity);
 
 		}
-   		if (makerCheckerEngine.processIfRequired(paymentAccountRequestDto, PaymentAccountService.class.getName(), "saveOrUpdatePaymentAccount", "")) {
+   		if (makerCheckerEngine.processIfRequired(paymentAccountRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return null;
 		}
 		finalList = paymentAccountRepository.save(paymentAccount);
@@ -163,7 +163,7 @@ public class PaymentAccountService {
 	public void deletePaymentAccountById(int id) throws Exception {
 		paymentAccountRepository.findById(id)
 				.orElseThrow(() -> new BusinessException(ResponseCode.PAY_PAYMENT_NOT_FOUND, HttpStatus.NOT_FOUND));
-   		if (makerCheckerEngine.processIfRequired(id, PaymentAccountService.class.getName(), "deletePaymentAccountById", "")) {
+   		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return;
 		}
 		paymentAccountRepository.deleteById(id);

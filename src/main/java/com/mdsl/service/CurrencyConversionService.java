@@ -23,6 +23,7 @@ import com.mdsl.model.mapper.CurrencyConversionMapper;
 import com.mdsl.repository.CurrencyConversionRepository;
 import com.mdsl.repository.CurrencyRepository;
 import com.mdsl.repository.InstitutionRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,9 @@ public class CurrencyConversionService {
 
 	@Autowired
 	private CurrencyConversionMapper currencyConversionMapper;
+
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
 
 	public List<CurrencyConversionResponseDto> getAllCurrencyConversions() {
 		List<CurrencyConversionResponseDto> allCurrencyCodesDto = new ArrayList<CurrencyConversionResponseDto>();
@@ -114,6 +118,10 @@ public class CurrencyConversionService {
 		Institution institution = institutionRepository.findById(currencyConversionRequestDto.getInstitutionId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INSTITUTION_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
 
+		if (makerCheckerEngine.processIfRequired(currencyConversionRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
+
 		if (Objects.isNull(currencyConversionRequestDto.getCurrencyConversionId())
 				|| currencyConversionRequestDto.getCurrencyConversionId() == 0) {
 //			List<CurrencyConversion> currencyConversions= currencyConversionRepository.findByCurrency_CurrencyCodeEqualsIgnoreCaseAndBaseCurrency_CurrencyCodeEqualsIgnoreCaseAndInstitution_InstitutionIdEqualsIgnoreCaseAndRoundingRuleEqualsIgnoreCaseAndRateExpressionEqualsIgnoreCaseAndMidRateUsedEqualsIgnoreCase(currency2.getCurrencyCode(),baseCurrency.getCurrencyCode(),currencyConversionRequestDto.getInstitutionId(),currencyConversionRequestDto.getRoundingRule(),currencyConversionRequestDto.getRateExpression(),currencyConversionRequestDto.getMidRateUsed());
@@ -160,6 +168,9 @@ public class CurrencyConversionService {
 	public void deleteCurrencyConversion(int id) throws Exception{
 		currencyConversionRepository.findById(id)
 				.orElseThrow(() -> new BusinessException(ResponseCode.CUR_CURRENCY_NOT_FOUND, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		currencyConversionRepository.deleteById(id);
 	}
 	

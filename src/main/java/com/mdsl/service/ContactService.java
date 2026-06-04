@@ -32,6 +32,7 @@ import com.mdsl.repository.ContactRepository;
 import com.mdsl.repository.CountryRepository;
 import com.mdsl.repository.EntitiesRepository;
 import com.mdsl.repository.InstitutionRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.enumerations.StatementEnum;
 import com.mdsl.utils.enumerations.StatusEnum;
@@ -60,6 +61,9 @@ public class ContactService {
 
 	@Autowired
 	private ContactMapper contactMapper;
+
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
 
 	public List<ContactResponseDto> getAllContacts() {
 		List<Contact> contacts = contactRepository.findAll(Sort.by(Sort.Direction.ASC, "contactId"));
@@ -208,6 +212,9 @@ public class ContactService {
 			saveContact.setUserCreate(userDetails != null ? String.valueOf(userDetails.getId()) : "system");
 		}
 
+		if (makerCheckerEngine.processIfRequired(contactRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		saveAddress = addressRepository.save(saveAddress);
 		saveContact.setAddress(saveAddress);
 		saveContact = contactRepository.save(saveContact);
@@ -220,6 +227,9 @@ public class ContactService {
 
 	public void updateStatus(int id) {
 		char enabled = contactRepository.findById(id).get().getContactStatus();
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		if (enabled == '1')
 			contactRepository.UpdateStatus(id, '0');
 		else {
@@ -231,6 +241,9 @@ public class ContactService {
 	public void deleteContact(int id)  throws Exception {
 		contactRepository.findById(id)
 				.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_CONTACT_ID, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		contactRepository.deleteById(id);
 	}
 

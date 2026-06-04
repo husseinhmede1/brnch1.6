@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.validation.Valid;
 
+import com.mdsl.utils.MakerCheckerEngine;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +31,11 @@ import com.mdsl.utils.Validations;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/chargetypemaster")
+@RequiredArgsConstructor
 public class ChargeTypeMasterController {
 	private static final Logger logger = LoggerFactory.getLogger(ChargeTypeMasterController.class);
 
-	@Autowired
-	private ChargeTypeMasterService chargeTypeMasterService;
+	private final ChargeTypeMasterService chargeTypeMasterService;
 	
 	@GetMapping
 	public ResponseEntity<List<ChargeTypeMasterResponseDto>> getAllChargeTypeMaster()

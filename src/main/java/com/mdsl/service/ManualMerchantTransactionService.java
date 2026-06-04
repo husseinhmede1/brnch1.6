@@ -181,7 +181,7 @@ public class ManualMerchantTransactionService {
 			manualMerchantTransaction.setInstitution(institution);
 			manualMerchantTransaction.setReasonCode(systemCode);
 			manualMerchantTransaction.setPan(manualMerchantTransactionRequestDto.getCardNumber());
-			if (makerCheckerEngine.processIfRequired(manualMerchantTransactionRequestDto, ManualMerchantTransactionService.class.getName(), "saveOrUpdateManualMerchantTransaction", "")) {
+			if (makerCheckerEngine.processIfRequired(manualMerchantTransactionRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 				return null;
 			}
 				manualMerchantTransaction = manualMerchantTransactionRepository.save(manualMerchantTransaction);
@@ -217,7 +217,7 @@ public class ManualMerchantTransactionService {
 			manualMerchantTransaction1.setInstitution(institution);
 			manualMerchantTransaction1.setReasonCode(systemCode);
 			manualMerchantTransaction1.setPan(manualMerchantTransactionRequestDto.getCardNumber());
-			if (makerCheckerEngine.processIfRequired(manualMerchantTransactionRequestDto, ManualMerchantTransactionService.class.getName(), "saveOrUpdateManualMerchantTransaction", "")) {
+			if (makerCheckerEngine.processIfRequired(manualMerchantTransactionRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 				return null;
 			}
 			manualMerchantTransaction = manualMerchantTransactionRepository.save(manualMerchantTransaction1);
@@ -228,7 +228,7 @@ public class ManualMerchantTransactionService {
 	public void deleteManualMerchantTransaction(int id) throws Exception {
 		manualMerchantTransactionRepository.findById(id).orElseThrow(
 				() -> new BusinessException(ResponseCode.MMT_NOT_FOUND, HttpStatus.NOT_FOUND));
-		if (makerCheckerEngine.processIfRequired(id, ManualMerchantTransactionService.class.getName(), "deleteManualMerchantTransaction", "")) {
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return;
 		}
 		manualMerchantTransactionRepository.deleteById(id);

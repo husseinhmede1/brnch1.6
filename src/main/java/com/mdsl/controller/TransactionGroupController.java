@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
+import com.mdsl.model.dto.request.SaveOrUpdateTransactionGroupRequestDto;
 import com.mdsl.model.dto.request.TransactionGroupRequestDto;
 import com.mdsl.model.dto.response.TransactionGroupDto;
 import com.mdsl.service.DefaultTransactionIdService;
@@ -48,7 +49,11 @@ public class TransactionGroupController {
 	public ResponseEntity<TransactionGroupRequestDto> saveOrUpdateTransactionGroups(@Valid @RequestBody TransactionGroupRequestDto transactionGroupRequestDto,BindingResult bindingResult,HttpServletRequest httpServletRequest) {
 		Validations.validate(bindingResult);
 		try {
-			return ResponseEntity.ok(transactionGroupService.saveOrUpdateTransactionGroup(transactionGroupRequestDto, httpServletRequest.getHeader("instId")));
+			SaveOrUpdateTransactionGroupRequestDto saveOrUpdateTransactionGroupRequestDto = SaveOrUpdateTransactionGroupRequestDto.builder()
+					.transactionGroupRequestDto(transactionGroupRequestDto)
+					.institutionId(httpServletRequest.getHeader("instId"))
+					.build();
+			return ResponseEntity.ok(transactionGroupService.saveOrUpdateTransactionGroup(saveOrUpdateTransactionGroupRequestDto));
 		}catch(BusinessException ex) {
 			logger.error("@TransactionGroupController#saveOrUpdateTransactionGroups-business exception "+ex.toString());
 			throw new BusinessException(ex.getMessage(),ex.getHttpStatus());

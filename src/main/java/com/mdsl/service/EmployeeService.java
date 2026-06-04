@@ -24,6 +24,7 @@ import com.mdsl.repository.EmployeeRepository;
 import com.mdsl.repository.InstitutionRepository;
 import com.mdsl.repository.RoleMasterRepository;
 import com.mdsl.repository.SystemCodeRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.enumerations.StatusEnum;
 
@@ -45,6 +46,9 @@ public class EmployeeService {
 	@Autowired
 	private SystemCodeRepository systemCodeRepository;
 
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
+
 	public List<EmployeeResponseDto> getAllEmployees() {
 		List<Employee> allEmployee = empRepo.findAll(Sort.by(Sort.Direction.ASC, "employeeId"));
 		List<EmployeeResponseDto> allEmployeeResponseDto = new ArrayList<EmployeeResponseDto>();
@@ -58,6 +62,9 @@ public class EmployeeService {
 	public void deleteEmployee(int id) throws Exception {
 		empRepo.findById(id).orElseThrow(
 				() -> new BusinessException(ResponseCode.EMP_EMPLOYEE_NOT_FOUND, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		empRepo.deleteById(id);
 	}
 
@@ -90,8 +97,11 @@ public class EmployeeService {
 		
 		UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext()
 				.getAuthentication().getPrincipal();
-		
-		
+
+		if (makerCheckerEngine.processIfRequired(employeeRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
+
 		if (employeeRequestDto.getEmployeeId() != 0) {
 			employee = empRepo.findById(employeeRequestDto.getEmployeeId())
 					.orElseThrow(() -> new BusinessException(ResponseCode.EMP_EMPLOYEE_NOT_FOUND, HttpStatus.NOT_FOUND));
@@ -134,6 +144,9 @@ public class EmployeeService {
 		Employee employee = empRepo.findById(changeStatusRequestDto.getId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.EMP_EMPLOYEE_NOT_FOUND, HttpStatus.NOT_FOUND));
 		employee.setStatus(changeStatusRequestDto.getStatus().charAt(0));
+		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		empRepo.save(employee);
 
 		return "Status changed successfully";

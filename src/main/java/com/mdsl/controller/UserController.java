@@ -86,7 +86,7 @@ public class UserController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity deleteUser(@PathVariable(value = "id") int userId, HttpServletRequest request) {
 		  try {
-	         userService.deleteUser(userId, request.getRemoteAddr());
+	         userService.deleteUser(userId);
 			 return ResponseEntity.ok("");
 		  }catch(BusinessException ex) {
 			  logger.error("@UserController#deleteUser-business exception "+ex.toString());
@@ -100,7 +100,7 @@ public class UserController {
 	@PostMapping("/password-change")
 	public void changePassword(@Valid @RequestBody ChangePasswordRequestDto changePasswordRequestDTO,BindingResult bindingResult, HttpServletRequest request) {
 		Validations.validate(bindingResult);
-		userService.changePassword(changePasswordRequestDTO, request.getRemoteAddr());
+		userService.changePassword(changePasswordRequestDTO);
 	}
 
 	@PostMapping("/password-reset")
@@ -121,7 +121,8 @@ public class UserController {
 	@PostMapping("/status-change")
 	public ResponseEntity<String> changeUserStatus(@Valid @RequestBody ChangeStatusRequestDto changeUserStatusRequestDTO,BindingResult bindingResult, HttpServletRequest request) {
 		Validations.validate(bindingResult);
-		return ResponseEntity.ok(userService.changeUserStatus(changeUserStatusRequestDTO, request.getRemoteAddr()));
+		changeUserStatusRequestDTO.setRemoteAddress(request.getRemoteAddr());
+		return ResponseEntity.ok(userService.changeUserStatus(changeUserStatusRequestDTO));
 	}
 
 	@PostMapping("/unblock")

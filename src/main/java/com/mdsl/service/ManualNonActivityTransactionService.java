@@ -166,10 +166,6 @@ public class ManualNonActivityTransactionService {
 			if(userDetails!=null) {
 				manualNonActivityTransaction.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
 			}
-			if (makerCheckerEngine.processIfRequired(manualNonActivityTransactionRequestDto, ManualNonActivityTransactionService.class.getName(), "saveOrUpdateManualNonActivityTransaction", "")) {
-				return null;
-			}
-			manualNonActivityTransaction = manualNonActivityTransactionRepository.save(manualNonActivityTransaction);
 		}
 
 		else {
@@ -199,9 +195,12 @@ public class ManualNonActivityTransactionService {
 			manualNonActivityTransaction.setReasonCode(systemCode);
 			manualNonActivityTransaction.setUserCreate(manualNonActivityTransaction1.getUserCreate());
 
-			manualNonActivityTransaction = manualNonActivityTransactionRepository.save(manualNonActivityTransaction);
-
 		}
+
+		if (makerCheckerEngine.processIfRequired(manualNonActivityTransactionRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
+		manualNonActivityTransaction = manualNonActivityTransactionRepository.save(manualNonActivityTransaction);
 
 		ManualNonActivityTransactionResponseDto manualNonActivityTransactionResponseDto= manualNonActivityTransactionMapper.toDto(manualNonActivityTransaction);
 		
@@ -211,7 +210,7 @@ public class ManualNonActivityTransactionService {
 	public void deleteManualNonActivityTransaction(int id) throws Exception {
 		manualNonActivityTransactionRepository.findById(id).orElseThrow(
 				() -> new BusinessException(ResponseCode.MNT_NOT_FOUND, HttpStatus.NOT_FOUND));
-		if (makerCheckerEngine.processIfRequired(id, ManualNonActivityTransactionRequestDto.class.getName(), "deleteManualNonActivityTransaction", "")) {
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
 			return;
 		}
 		manualNonActivityTransactionRepository.deleteById(id);

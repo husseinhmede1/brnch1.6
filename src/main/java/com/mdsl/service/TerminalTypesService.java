@@ -27,6 +27,7 @@ import com.mdsl.repository.SystemCodeRepository;
 import com.mdsl.repository.TerminalRepository;
 import com.mdsl.repository.TerminalTypesRepository;
 import com.mdsl.swtch.service.SwitchPosTermTypeService;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
 @Service
@@ -50,6 +51,9 @@ public class TerminalTypesService {
 	@Autowired
 	private SwitchPosTermTypeService switchPosTermTypeService;
 
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
+
 	public TerminalTypeResponseDto saveOrUpdateTerminmalType(TerminalTypesDto terminalTypesDto) {
 		TerminalTypes terminalTypes = new TerminalTypes();
 		
@@ -64,6 +68,10 @@ public class TerminalTypesService {
 
 		if (terminalTypesDto.getTerminalTypesId() != 0) {
 			terminalTypes = terminalTypesRepository.findById(terminalTypesDto.getTerminalTypesId()).get();
+		}
+
+		if (makerCheckerEngine.processIfRequired(terminalTypesDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
 		}
 
 		if (terminalTypes != null && terminalTypesDto.getTerminalTypesId() != 0) {
@@ -159,6 +167,9 @@ public class TerminalTypesService {
 	public void deleteTerminalType(int terminalTypeId) throws Exception {
 		TerminalTypes terminalTypes = terminalTypesRepository.findById(terminalTypeId).orElseThrow(
 				() -> new BusinessException(ResponseCode.CFG_TERMINAL_TYPE_NOT_FOUND, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(terminalTypeId, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		terminalTypesRepository.delete(terminalTypes);
 		SystemCode switchSystemCode = this.systemCodeRepository.findByCodePrefixAndCodeValueAndInstitution_InstitutionId("SWITCH_ENABLED", "SWITCH_ENABLED_FLAG", "SYSTEM")
 				.orElseThrow(() -> new BusinessException(ResponseCode.SYS_CODE_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
@@ -179,6 +190,9 @@ public class TerminalTypesService {
 		TerminalTypes terminalTypes = terminalTypesRepository.findById(changeStatusRequestDto.getId()).orElseThrow(
 				() -> new BusinessException(ResponseCode.CFG_TERMINAL_TYPE_NOT_FOUND, HttpStatus.NOT_FOUND));
 		terminalTypes.setStatus(changeStatusRequestDto.getStatus());
+		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		terminalTypesRepository.save(terminalTypes);
 
 		return "Status changed successfully";

@@ -19,6 +19,7 @@ import com.mdsl.model.mapper.EntityLevelsMapper;
 import com.mdsl.repository.EntitiesRepository;
 import com.mdsl.repository.EntityLevelsRepository;
 import com.mdsl.repository.InstitutionRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
 @Service
@@ -31,6 +32,8 @@ public class EntityLevelsService {
 	private EntityLevelsMapper entityLevelsMapper;
 	@Autowired
 	private InstitutionRepository institutionRepository;
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
 
 	public EntityLevelsResponseDto saveEntityLevel(EntityLevelsRequestDto entityLevelsRequestDto) {
 		Institution institution = institutionRepository.findById(entityLevelsRequestDto.getInstitutionId())
@@ -38,6 +41,9 @@ public class EntityLevelsService {
 		EntityLevels entityLevels = entityLevelsMapper.toEntity(entityLevelsRequestDto);
 		entityLevels.setInstitution(institution);
 		entityLevels.setDateCreate(new java.sql.Date(new java.util.Date().getTime()));
+		if (makerCheckerEngine.processIfRequired(entityLevelsRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		entityLevels = entityLevelsRepository.save(entityLevels);
 		return entityLevelsMapper.toDto(entityLevels);
 	}
@@ -58,6 +64,9 @@ public class EntityLevelsService {
 				.orElseThrow(() -> new BusinessException(ResponseCode.ENT_ENTITYLEVELS_CODE_NOT_FOUND, HttpStatus.NOT_FOUND));
 		List<Entities> entities = entitiesRepository.findByEntityLevelsAndInstitution(entityLevel.getHierarchyLevel(),entityLevel.getInstitution());
 		if ((entities.isEmpty())) {
+			if (makerCheckerEngine.processIfRequired(entityLevelId, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+				return;
+			}
 			entityLevelsRepository.deleteById(entityLevelId);
 		}
 		else {

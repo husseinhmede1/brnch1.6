@@ -3,25 +3,23 @@ package com.mdsl.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.mdsl.exceptionHandling.BusinessException;
+import com.mdsl.utils.MakerCheckerEngine;
+import com.mdsl.utils.ResponseCode;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.entity.ChargeMethod;
 import com.mdsl.repository.ChargeMethodRepository;
-import com.mdsl.utils.MakerCheckerEngine;
-import com.mdsl.utils.ResponseCode;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class ChargeMethodService {
-	@Autowired
-	private ChargeMethodRepository chargeMethodRepository;
-    private final MakerCheckerEngine makerCheckerEngine;
+	private final ChargeMethodRepository chargeMethodRepository;
+	private final MakerCheckerEngine makerCheckerEngine;
 
 	public List<ChargeMethod> getAllChargeMethod() {
 		List<ChargeMethod> chargeMethods = chargeMethodRepository
@@ -39,7 +37,11 @@ public class ChargeMethodService {
 			throw new BusinessException(ResponseCode.VAL_ERROR_OCCURRED, HttpStatus.BAD_REQUEST);
 		}
 		try {
-			if (makerCheckerEngine.processIfRequired(chargeMethod, ChargeMethodService.class.getName(), "saveChargeMethod", "")) {
+			if (makerCheckerEngine.processIfRequired(chargeMethod, this.getClass().getName(), new Object() {
+			}
+					.getClass()
+					.getEnclosingMethod()
+					.getName(), "")) {
 				return null;
 			}
 			ChargeMethod saved = chargeMethodRepository.save(chargeMethod);

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.mdsl.utils.MakerCheckerEngine;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,7 @@ public class AccountingTemplateHDRService
     private final InstitutionRepository institutionRepository;
     private final AccountingTemplateHDRSubRepository accountingTemplateHDRSubRepository;
     private final EntitiesRepository entitiesRepository;
+    private final MakerCheckerEngine makerCheckerEngine;
     
     private final AccountingTemplateHDRMapper accountingTemplateHdrMapper;
     private final EntityMapper entityMapper;
@@ -64,31 +66,36 @@ public class AccountingTemplateHDRService
         }
         accountingTemplateHDRRequestDto.setAccountTemplate(accountingTemplateHDRRequestDto.getAccountTemplate().trim().toUpperCase());
         AccountingTemplateHDR savedAccountingTemplateHDR;
+        AccountingTemplateHDR saveAccountingTemplateHDR;
         if (requestAccountingTemplateHDR.isPresent()) { //Case of Update
             if (this.accountingTemplateHdrRepository.existsByInstitutionIdAndAccountTemplateAndAcctTemplateHdrIdNot(accountingTemplateHDRRequestDto.getInstitutionId(), accountingTemplateHDRRequestDto.getAccountTemplate(), accountingTemplateHDRRequestDto.getAcctTemplateHdrId())) {
                 throw new BusinessException(ResponseCode.CFG_ACCOUNTING_TEMPLATE_HDR_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
             }
-            AccountingTemplateHDR saveAccountingTemplateHDR = this.accountingTemplateHdrMapper.toEntity(accountingTemplateHDRRequestDto);
+            saveAccountingTemplateHDR = this.accountingTemplateHdrMapper.toEntity(accountingTemplateHDRRequestDto);
             saveAccountingTemplateHDR.setCreatedBy(requestAccountingTemplateHDR.get().getCreatedBy());
             saveAccountingTemplateHDR.setCreatedDate(requestAccountingTemplateHDR.get().getCreatedDate());
             saveAccountingTemplateHDR.setUpdatedBy(Integer.valueOf(userDetails.getId()));
             saveAccountingTemplateHDR.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
-            savedAccountingTemplateHDR = (AccountingTemplateHDR)this.accountingTemplateHdrRepository.save(saveAccountingTemplateHDR);
         } else {//Case of create
             if (this.accountingTemplateHdrRepository.existsByInstitutionIdAndAccountTemplate(accountingTemplateHDRRequestDto.getInstitutionId(), accountingTemplateHDRRequestDto.getAccountTemplate())) {
                 throw new BusinessException(ResponseCode.CFG_ACCOUNTING_TEMPLATE_HDR_ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
             }
-            AccountingTemplateHDR saveAccountingTemplateHDR = this.accountingTemplateHdrMapper.toEntity(accountingTemplateHDRRequestDto);
+            saveAccountingTemplateHDR = this.accountingTemplateHdrMapper.toEntity(accountingTemplateHDRRequestDto);
             saveAccountingTemplateHDR.setCreatedBy(Integer.valueOf(userDetails.getId()));
             saveAccountingTemplateHDR.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-            savedAccountingTemplateHDR = (AccountingTemplateHDR)this.accountingTemplateHdrRepository.save(saveAccountingTemplateHDR);
         }
+        if (makerCheckerEngine.processIfRequired(accountingTemplateHDRRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+            return null;
+        }
+        savedAccountingTemplateHDR = this.accountingTemplateHdrRepository.save(saveAccountingTemplateHDR);
         return this.accountingTemplateHdrMapper.toDto(savedAccountingTemplateHDR);
     }
     
     public void deleteAccountingTemplateHDR(int id) {
         AccountingTemplateHDR accountingTemplateHDR = this.accountingTemplateHdrRepository.findById(id).orElseThrow(() -> new BusinessException(ResponseCode.CFG_ACCOUNT_TEMPLATE_NOT_FOUND, HttpStatus.NOT_FOUND));
-        
+        if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+            return;
+        }
         List<AccountingTemplateHDRSub> accountingTemplateHDRSubs = this.accountingTemplateHDRSubRepository.findByAcctTemplateHdrId(accountingTemplateHDR.getAcctTemplateHdrId());
         
         accountingTemplateHDRSubs.forEach((subHdr) -> {
@@ -101,6 +108,7 @@ public class AccountingTemplateHDRService
     public AccountingTemplateHdrEntityMappingRequestDto mapAccountingTemplateWithEntity(AccountingTemplateHdrEntityMappingRequestDto requestDto) {
         AccountingTemplateHDR accountingTemplateHDR = this.accountingTemplateHdrRepository.findById(requestDto.getId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_ACCOUNT_TEMPLATE_NOT_FOUND, HttpStatus.NOT_FOUND));
         List<String> listofEntityRequestDto = requestDto.getEntities();
+        List<Entities> entitiesToBeSaved = new ArrayList<>();
         List<Entities> oldENtityAssign = this.entitiesRepository.findByAcctTemplateHdrIdAndInstitution_InstitutionId((int)accountingTemplateHDR.getAcctTemplateHdrId(),accountingTemplateHDR.getInstitutionId());
         if (!oldENtityAssign.isEmpty() && oldENtityAssign.size() != 0) {
             List<String> oldEntityList = oldENtityAssign.stream().map(Entities::getEntityId).collect(Collectors.toList());
@@ -110,16 +118,21 @@ public class AccountingTemplateHDRService
 			entityIds.forEach((id) -> {
 				Entities entities = entitiesRepository.findByEntityIdAndInstitution_InstitutionId(id,accountingTemplateHDR.getInstitutionId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_ENTITY_NOT_FOUND, HttpStatus.NOT_FOUND));
 				entities.setAcctTemplateHdrId(null);
-				entitiesRepository.save(entities);
+                entitiesToBeSaved.add(entities);
 			});
 		}
         
         listofEntityRequestDto.forEach((id) -> {
 			Entities entities = entitiesRepository.findByEntityIdAndInstitution_InstitutionId(String.valueOf(id),accountingTemplateHDR.getInstitutionId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_ENTITY_NOT_FOUND, HttpStatus.NOT_FOUND));
 			entities.setAcctTemplateHdrId(accountingTemplateHDR.getAcctTemplateHdrId());
-			entitiesRepository.save(entities);
-		});
-
+            entitiesToBeSaved.add(entities);
+        });
+        if (makerCheckerEngine.processIfRequired(requestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+            return null;
+        }
+        for (Entities entities : entitiesToBeSaved) {
+            entitiesRepository.save(entities);
+        }
 		return requestDto;
     }
     

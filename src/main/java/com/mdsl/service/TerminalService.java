@@ -3,6 +3,7 @@ package com.mdsl.service;
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.AllTerminalsRequestDto;
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
+import com.mdsl.model.dto.request.DeleteTerminalRequestDto;
 import com.mdsl.model.dto.request.TerminalRequestDto;
 import com.mdsl.model.dto.response.PaginationResponseDto;
 import com.mdsl.model.dto.response.TerminalResponseDto;
@@ -12,6 +13,7 @@ import com.mdsl.repository.*;
 import com.mdsl.swtch.model.dto.request.SwitchTerminalRequestDto;
 import com.mdsl.swtch.service.SwitchTerminalService;
 import com.mdsl.utils.DateParseUtil;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.PaginationCommonCode;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.enumerations.DateFormatEnum;
@@ -62,6 +64,9 @@ public class TerminalService {
 	@Autowired
 	private SwitchTerminalService switchTerminalService;
 
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
+
 	@Transactional
 	public TerminalResponseDto saveOrUpdateTerminal(TerminalRequestDto terminalRequestDto) {
 		// TODO Auto-generated method stub
@@ -99,7 +104,11 @@ public class TerminalService {
 				.orElseThrow(
 						() -> new BusinessException(ResponseCode.CFG_INVALID_TERMINAL_TYPE_ID, HttpStatus.NOT_FOUND));
 
-		
+
+
+		if (makerCheckerEngine.processIfRequired(terminalRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 
 		if (institution != null && entities != null && currency != null && mccList != null) {
 
@@ -184,10 +193,15 @@ public class TerminalService {
 	}
 
 
-	public void deleteTerminal(String terminalId, String instId) {
+	public void deleteTerminal(DeleteTerminalRequestDto deleteTerminalRequestDto) {
+		String terminalId = deleteTerminalRequestDto.getTerminalId();
+		String instId = deleteTerminalRequestDto.getInstId();
 
 		Terminal terminal = terminalRepository.findByTerminalIdAndInstitutionEntity_InstitutionId(terminalId, instId)
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_TERMINAL_ID, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(deleteTerminalRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		terminalRepository.deleteById(terminal.getRecordSequenceId());
 		
 		SystemCode switchSystemCode = this.systemCodeRepository.findByCodePrefixAndCodeValueAndInstitution_InstitutionId("SWITCH_ENABLED", "SWITCH_ENABLED_FLAG", "SYSTEM")
@@ -293,10 +307,13 @@ public class TerminalService {
 		return terminalDtos;
 	}
 
-	public String changeStatus(@Valid ChangeStatusRequestDto changeStatusRequestDto, String instId) {
-		Terminal terminal = terminalRepository.findByTerminalIdAndInstitutionEntity_InstitutionId(String.valueOf(changeStatusRequestDto.getId()),instId)
+	public String changeStatus(@Valid ChangeStatusRequestDto changeStatusRequestDto) {
+		Terminal terminal = terminalRepository.findByTerminalIdAndInstitutionEntity_InstitutionId(String.valueOf(changeStatusRequestDto.getId()),changeStatusRequestDto.getInstId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_TERMINAL_ID, HttpStatus.NOT_FOUND));
 		terminal.setStatus(changeStatusRequestDto.getStatus().charAt(0));
+		if (makerCheckerEngine.processIfRequired(changeStatusRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		terminalRepository.save(terminal);
 
 		return "Status changed successfully";

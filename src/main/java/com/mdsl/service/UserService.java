@@ -5,6 +5,7 @@ import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.*;
 import com.mdsl.model.mapper.UserMapper;
 import com.mdsl.model.mapper.UserRoleMapper;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.PasswordGenerator;
 import com.mdsl.utils.ResponseCode;
 import com.mdsl.utils.Validations;
@@ -142,6 +143,7 @@ public class UserService {
 	private final PaymentAccountRepository paymentAccountRepository;
 	private final ContactRepository contactRepository;
 	private final AddressRepository addressRepository;
+	private final MakerCheckerEngine makerCheckerEngine;
 
 	private final JwtUtils jwtUtils;
 	
@@ -330,6 +332,14 @@ public class UserService {
 		} else {
 			institution1 = institutionRepository.findById(userRequestDto.getDefaultInstitutionId())
 					.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_INST, HttpStatus.NOT_FOUND));
+		}
+
+		if (makerCheckerEngine.processIfRequired(userRequestDto, this.getClass().getName(), new Object() {
+		}
+				.getClass()
+				.getEnclosingMethod()
+				.getName(), "")) {
+			return null;
 		}
 
 		if (Objects.isNull(userRequestDto.getUserId()) || userRequestDto.getUserId() == 0) { // create user
@@ -531,7 +541,7 @@ public class UserService {
 	 */
 	
 	
-	public void deleteUser(int userId, String remoteAddress) {
+	public void deleteUser(int userId) {
 		UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
 		User user = userRepository.findById(userId)
@@ -644,6 +654,14 @@ public class UserService {
 					HttpStatus.NOT_FOUND);
 		}
 
+		if (makerCheckerEngine.processIfRequired(userId, this.getClass().getName(), new Object() {
+		}
+				.getClass()
+				.getEnclosingMethod()
+				.getName(), "")) {
+			return;
+		}
+
 		for (UserInstitutionMapping userInstitutionMapping : userInstitutionMappings) {
 			UserInstitutionMapping userInstitutionMapping2 = userInstitutionMappingRepository
 					.findById(userInstitutionMapping.getMappingId())
@@ -678,7 +696,7 @@ public class UserService {
 	 * Changes a user password in field PASSWORD in table MD_ENT_USER based on the
 	 * user id Last password change field will be updated
 	 */
-	public void changePassword(ChangePasswordRequestDto changePasswordRequestDTO, String remoteAddress) {
+	public void changePassword(ChangePasswordRequestDto changePasswordRequestDTO) {
 		// Branch branch = branchRepository.findById(branchId).orElseThrow(()-> new
 		// BusinessException(ResponseCode.CFG_INVALID_BRANCH, HttpStatus.NOT_FOUND));
 		UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
@@ -700,6 +718,14 @@ public class UserService {
 
 		user.setPassword(passwordEncoder.encode(changePasswordRequestDTO.getNewPassword()));
 		// user.setLastPasswordChange(new Timestamp(System.currentTimeMillis()));
+
+		if (makerCheckerEngine.processIfRequired(changePasswordRequestDTO, this.getClass().getName(), new Object() {
+		}
+				.getClass()
+				.getEnclosingMethod()
+				.getName(), "")) {
+			return;
+		}
 
 		userRepository.save(user);
 
@@ -775,7 +801,7 @@ public class UserService {
 	/*
 	 * Enables/disables a user by changing the status
 	 */
-	public String changeUserStatus(ChangeStatusRequestDto changeUserRequestDTO, String remoteAddress) {
+	public String changeUserStatus(ChangeStatusRequestDto changeUserRequestDTO) {
 
 		UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication()
 				.getPrincipal();
@@ -787,6 +813,14 @@ public class UserService {
 		}
 
 		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
+
+		if (makerCheckerEngine.processIfRequired(changeUserRequestDTO, this.getClass().getName(), new Object() {
+		}
+				.getClass()
+				.getEnclosingMethod()
+				.getName(), "")) {
+			return null;
+		}
 
 		userRepository.updateUserStatus(changeUserRequestDTO.getStatus().charAt(0), changeUserRequestDTO.getId(),
 				currentDate,Integer.valueOf(userDetails.getId()));
@@ -805,6 +839,14 @@ public class UserService {
 		Timestamp currentDate = new Timestamp(System.currentTimeMillis());
 		UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext()
 				.getAuthentication().getPrincipal();
+
+		if (makerCheckerEngine.processIfRequired(unBlockUserRequestDto, this.getClass().getName(), new Object() {
+		}
+				.getClass()
+				.getEnclosingMethod()
+				.getName(), "")) {
+			return null;
+		}
 
 		userRepository.updateUserStatusAndPasswordRetries('1', unBlockUserRequestDto.getUserId(),
 				currentDate, 0,Integer.valueOf(userDetails.getId()).toString());

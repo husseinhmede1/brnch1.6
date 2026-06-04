@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import com.mdsl.utils.MakerCheckerEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,6 +52,9 @@ public class IssueRelationService {
 	
 	@Autowired
 	private CountryRepository countryRepository;
+
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
 	
 	public List<IssuerRelationResponseDto> getAllIssuerRelationByIssuerId(int issuerId) {
 		IssuerProfile issuer = issuerRepository.findById(issuerId)
@@ -223,7 +227,6 @@ public class IssueRelationService {
 
 	public IssuerRelationResponseDto saveOrUpdateIssuer(IssuerRelationRequestDto issuerRelationRequestDto) {
 		IssuerRelation issuerRelation = null;
-		IssuerRelation savedissuerRelation = null;
 		UserDetailsImpl userDetails = (UserDetailsImpl)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 		issuerRepository.findByIssuerAcqProfileAndInstitutionId(issuerRelationRequestDto.getIssuerAcqProfile().trim().toUpperCase(),issuerRelationRequestDto.getInstitutionId()).orElseThrow(() -> new BusinessException(ResponseCode.ISS_ISSUER_NOT_FOUND, HttpStatus.NOT_FOUND));
 		institutionRepository.findById(issuerRelationRequestDto.getInstitutionId()).orElseThrow(() -> new BusinessException(ResponseCode.CFG_INSTITUTION_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
@@ -240,69 +243,59 @@ public class IssueRelationService {
 			issuerRelation = issuerRelationMapper.toEntity(issuerRelationRequestDto);
 			issuerRelation.setCreatedBy(requestIssuerRelation.get().getCreatedBy());
 			issuerRelation.setCreatedDate(requestIssuerRelation.get().getCreatedDate());
-			issuerRelation.setUpdatedBy(Integer.valueOf(userDetails.getId()));
+			issuerRelation.setUpdatedBy(userDetails.getId());
 			issuerRelation.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
-			savedissuerRelation = issuerRelationRepository.save(issuerRelation);
 		} else {
 			issuerRelation = issuerRelationMapper.toEntity(issuerRelationRequestDto);
-			issuerRelation.setCreatedBy(Integer.valueOf(userDetails.getId()));
+			issuerRelation.setCreatedBy(userDetails.getId());
 			issuerRelation.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-			savedissuerRelation = issuerRelationRepository.save(issuerRelation);
+
 		}
-		
+		if (makerCheckerEngine.processIfRequired(issuerRelationRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
+		issuerRelation = issuerRelationRepository.save(issuerRelation);
 		Optional<Country> country = this.countryRepository.findByCntryCode(issuerRelation.getCntryCode());
-		IssuerRelationResponseDto responseDto = issuerRelationMapper.toDto(savedissuerRelation);
-		if(country.isPresent()) {
-			responseDto.setCntryName(country.get().getCntryName());
-		}
+		IssuerRelationResponseDto responseDto = issuerRelationMapper.toDto(issuerRelation);
+        country.ifPresent(value -> responseDto.setCntryName(value.getCntryName()));
 		return responseDto;
 	}
 	
-	public IssuerRelationResponseDto saveOrUpdateIssuerRelation(IssuerRelationRequestDto issuerRelationRequestDto, String instId, int issuerId) {
-		IssuerRelation issuerRelation = null;
+	public IssuerRelationResponseDto saveOrUpdateIssuerRelation(IssuerRelationRequestDto issuerRelationRequestDto, String instId, IssuerRelation issuerRelation) {
 		UserDetailsImpl userDetails = (UserDetailsImpl)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-		IssuerProfile issuer = issuerRepository.findById(issuerId)
-				.orElseThrow(() -> new BusinessException(ResponseCode.ISS_ISSUER_NOT_FOUND, HttpStatus.NOT_FOUND));
-		Institution institution = institutionRepository.findById(instId)
-				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INSTITUTION_ID_NOT_FOUND, HttpStatus.NOT_FOUND));
 		issuerRelationRequestDto.setIssuerAcqProfile(issuerRelationRequestDto.getIssuerAcqProfile().trim().toUpperCase());
 		if (issuerRelationRequestDto.getRecordSeqId() != 0) {
-			issuerRelation = issuerRelationRepository.findById(issuerRelationRequestDto.getRecordSeqId())
-					.orElseThrow(
-							() -> new BusinessException(ResponseCode.ISS_ISSUER_RELATION_NOT_FOUND, HttpStatus.NOT_FOUND));
-			issuerRelation.setInstitutionId(institution.getInstitutionId());
-			issuerRelation.setIssuerAcqProfile(issuer.getIssuerAcqProfile());
+			if (issuerRelation == null) {
+				issuerRelation = issuerRelationRepository.findById(issuerRelationRequestDto.getRecordSeqId())
+						.orElseThrow(
+								() -> new BusinessException(ResponseCode.ISS_ISSUER_RELATION_NOT_FOUND, HttpStatus.NOT_FOUND));
+			}
+			issuerRelation.setInstitutionId(instId);
+			issuerRelation.setIssuerAcqProfile(issuerRelationRequestDto.getIssuerAcqProfile());
 			issuerRelation.setPanRangeFrom(issuerRelationRequestDto.getPanRangeFrom());
 			issuerRelation.setPanRangeTo(issuerRelationRequestDto.getPanRangeTo());
 			issuerRelation.setCreatedBy(issuerRelation.getCreatedBy());
 			issuerRelation.setCreatedDate(issuerRelation.getCreatedDate());
-			issuerRelation.setUpdatedBy(Integer.valueOf(userDetails.getId()));
+			issuerRelation.setUpdatedBy(userDetails.getId());
 			issuerRelation.setUpdatedDate(new Timestamp(System.currentTimeMillis()));
-			issuerRelation = issuerRelationRepository.save(issuerRelation);
-			Optional<Country> country = this.countryRepository.findByCntryCode(issuerRelation.getCntryCode());
-			IssuerRelationResponseDto responseDto = issuerRelationMapper.toDto(issuerRelation);
-			if(country.isPresent()) {
-				responseDto.setCntryName(country.get().getCntryName());
-			}
-			return responseDto;
 		} else {
 			issuerRelation = issuerRelationMapper.toEntity(issuerRelationRequestDto);
-			issuer.setInstitutionId(institution.getInstitutionId());
-			issuerRelation.setIssuerAcqProfile(issuer.getIssuerAcqProfile());
-			issuerRelation.setCreatedBy(Integer.valueOf(userDetails.getId()));
+			issuerRelation.setIssuerAcqProfile(issuerRelationRequestDto.getIssuerAcqProfile());
+			issuerRelation.setCreatedBy(userDetails.getId());
 			issuerRelation.setCreatedDate(new Timestamp(System.currentTimeMillis()));
-			issuerRelation = issuerRelationRepository.save(issuerRelation);
-			Optional<Country> country = this.countryRepository.findByCntryCode(issuerRelation.getCntryCode());
-			IssuerRelationResponseDto responseDto = issuerRelationMapper.toDto(issuerRelation);
-			if(country.isPresent()) {
-				responseDto.setCntryName(country.get().getCntryName());
-			}
-			return responseDto;
 		}
+		issuerRelation = issuerRelationRepository.save(issuerRelation);
+		Optional<Country> country = this.countryRepository.findByCntryCode(issuerRelation.getCntryCode());
+		IssuerRelationResponseDto responseDto = issuerRelationMapper.toDto(issuerRelation);
+		country.ifPresent(value -> responseDto.setCntryName(value.getCntryName()));
+		return responseDto;
 	}
 
-	public void deleteIssuerRelation(int issuerRelationId) {
-		IssuerRelation issuerRelation = issuerRelationRepository.findById(issuerRelationId).orElseThrow(() -> new BusinessException(ResponseCode.ISS_ISSUER_RELATION_NOT_FOUND, HttpStatus.NOT_FOUND));
+	public void deleteIssuerRelation(int issuerRelationId, IssuerRelation issuerRelation) {
+		if (issuerRelation == null) {
+			issuerRelation = issuerRelationRepository.findById(issuerRelationId)
+						.orElseThrow(() -> new BusinessException(ResponseCode.ISS_ISSUER_RELATION_NOT_FOUND, HttpStatus.NOT_FOUND));
+		}
 		issuerRelationRepository.deleteById(issuerRelation.getRecordSeqId());
 	}
 }

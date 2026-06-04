@@ -17,16 +17,20 @@ import com.mdsl.model.dto.response.SchemeSpecificResponseDto;
 import com.mdsl.model.entity.SchemeSpecific;
 import com.mdsl.model.mapper.SchemeSpecificMapper;
 import com.mdsl.repository.SchemeSpecificRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
 @Service
 public class SchemeSpecificService {
-	
+
 	@Autowired
 	private SchemeSpecificRepository schemeSpecificRepository;
-	
+
 	@Autowired
 	private SchemeSpecificMapper schemeSpecificMapper;
+
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
 
 	public List<SchemeSpecificResponseDto> fetchAllSchemeSpecific() 
 	{
@@ -65,7 +69,10 @@ public class SchemeSpecificService {
 			
 			schemeSpecific.setSchemeSpecificName(schemeSpecificRequestDto.getSchemeSpecificName());
 		}
-		
+
+		if (makerCheckerEngine.processIfRequired(schemeSpecificRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		finalList=schemeSpecificRepository.save(schemeSpecific);
 		SchemeSpecificResponseDto dto=schemeSpecificMapper.toDto(finalList);
 		return dto;
@@ -74,6 +81,9 @@ public class SchemeSpecificService {
 	public void deleteSchemeSpecificById(int id) throws Exception {
 		schemeSpecificRepository.findById(id).orElseThrow(
 				() -> new BusinessException(ResponseCode.CFG_CARDSCHEME_SPEC_NOT_FOUND, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return;
+		}
 		schemeSpecificRepository.deleteById(id);
 	}
 	

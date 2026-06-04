@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Objects;
 
 import com.mdsl.model.dto.request.AddressRequestDto;
+import com.mdsl.utils.MakerCheckerEngine;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -34,34 +36,37 @@ import com.mdsl.utils.ResponseCode;
 
 @Service
 //@Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class AddressService {
 
-	@Autowired
-	private AddressRepository addressRepository;
+	
+	private final AddressRepository addressRepository;
 
-	@Autowired
-	private InstitutionRepository institutionRepository;
+	
+	private final InstitutionRepository institutionRepository;
 
-	@Autowired
-	private CountryRepository countryRepository;
+	
+	private final CountryRepository countryRepository;
 
-	@Autowired
-	private CityRepository cityRepository;
+	
+	private final CityRepository cityRepository;
 
-	@Autowired
-	private EntitiesRepository entitiesRepository;
+	
+	private final EntitiesRepository entitiesRepository;
 
-	@Autowired
-	private SystemCodeRepository systemCodeRepository;
+	
+	private final SystemCodeRepository systemCodeRepository;
 
-	@Autowired
-	private AddressMapper addressMapper;
+	
+	private final AddressMapper addressMapper;
+	
+	private final MakerCheckerEngine makerCheckerEngine;
 
-	@Autowired
-	private SwitchEntityAddressService switchEntityAddressService;
+	
+	private final SwitchEntityAddressService switchEntityAddressService;
 
-	@Autowired
-	private SwitchMasterAddressService switchMasterAddressService;
+	
+	private final SwitchMasterAddressService switchMasterAddressService;
 
 	public List<AddressResponseDto> getAllAddress() {
 		// TODO Auto-generated method stub
@@ -74,35 +79,35 @@ public class AddressService {
 		return addressResponseDto;
 	}
 
-	public AddressResponseDto saveOrUpdateAddress(AddressRequestDto addressResponseDto) {
+	public AddressResponseDto saveOrUpdateAddress(AddressRequestDto addressRequestDto) {
 		Address saveAddress;
 		Entities entity = null;
-		Institution institution = institutionRepository.findById(addressResponseDto.getInstitutionId())
+		Institution institution = institutionRepository.findById(addressRequestDto.getInstitutionId())
 				.orElseThrow(() -> new BusinessException(ResponseCode.CFG_INVALID_INSTITUTION_ID, HttpStatus.NOT_FOUND));
 
 		SystemCode switchSystemCode = this.systemCodeRepository.findByCodePrefixAndCodeValueAndInstitution_InstitutionId("SWITCH_ENABLED", "SWITCH_ENABLED_FLAG", "SYSTEM")
 				.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_SYSTEM_CODE_ID, HttpStatus.NOT_FOUND));
 
-		if (!addressResponseDto.getEntityId().equals(null) || !addressResponseDto.getEntityId().equals("")) {
-			entity = entitiesRepository.findByEntityIdAndInstitution(addressResponseDto.getEntityId(),institution)
+		if (!addressRequestDto.getEntityId().equals(null) || !addressRequestDto.getEntityId().equals("")) {
+			entity = entitiesRepository.findByEntityIdAndInstitution(addressRequestDto.getEntityId(),institution)
 					.orElseThrow(() -> new BusinessException(ResponseCode.ENT_ENTITY_CODE_NOT_FOUND, HttpStatus.NOT_FOUND));
 		}
 		Country country = null;
 		City city = null;
 		UserDetailsImpl userDetails = (UserDetailsImpl) SecurityContextHolder.getContext()
 				.getAuthentication().getPrincipal();
-		if (addressResponseDto.getCntryId() != 0) {
-			country = countryRepository.findById(addressResponseDto.getCntryId())
+		if (addressRequestDto.getCntryId() != 0) {
+			country = countryRepository.findById(addressRequestDto.getCntryId())
 					.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_COUNTRY_ID, HttpStatus.NOT_FOUND));
 		}
 
-		if (addressResponseDto.getCityId() != 0) {
-			city = cityRepository.findById(addressResponseDto.getCityId())
+		if (addressRequestDto.getCityId() != 0) {
+			city = cityRepository.findById(addressRequestDto.getCityId())
 					.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_CITY_ID, HttpStatus.NOT_FOUND));
 		}
 
-		if (Objects.isNull(addressResponseDto.getAddressId()) || addressResponseDto.getAddressId() == 0) {
-			saveAddress = addressMapper.toEntity(addressResponseDto);
+		if (Objects.isNull(addressRequestDto.getAddressId()) || addressRequestDto.getAddressId() == 0) {
+			saveAddress = addressMapper.toEntity(addressRequestDto);
 			saveAddress.setCityCode(city);
 			saveAddress.setCntryCode(country);
 			saveAddress.setInstitution(institution);
@@ -112,9 +117,9 @@ public class AddressService {
 
 			saveAddress.setDate(new Date());
 		} else {
-			Address address = addressRepository.findById(addressResponseDto.getAddressId())
+			Address address = addressRepository.findById(addressRequestDto.getAddressId())
 					.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_ADDRESS_ID, HttpStatus.NOT_FOUND));
-			saveAddress = addressMapper.toEntity(addressResponseDto);
+			saveAddress = addressMapper.toEntity(addressRequestDto);
 			saveAddress.setCityCode(city);
 			saveAddress.setCntryCode(country);
 			saveAddress.setInstitution(institution);
@@ -126,6 +131,13 @@ public class AddressService {
 			//saveAddress.setEntities(entity);
 			saveAddress.setDate(address.getDate());
 
+		}
+		if (makerCheckerEngine.processIfRequired(addressRequestDto, this.getClass().getName(), new Object() {
+		}
+				.getClass()
+				.getEnclosingMethod()
+				.getName(), "")) {
+			return null;
 		}
 		saveAddress.setUserCreate(Integer.valueOf(userDetails.getId()).toString());
 		saveAddress = addressRepository.save(saveAddress);
@@ -139,10 +151,17 @@ public class AddressService {
 	public void deleteAddress(int id) throws Exception {
 		Address address = addressRepository.findById(id)
 				.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_ADDRESS_ID, HttpStatus.NOT_FOUND));
-		addressRepository.delete(address);
 
 		SystemCode switchSystemCode = this.systemCodeRepository.findByCodePrefixAndCodeValueAndInstitution_InstitutionId("SWITCH_ENABLED", "SWITCH_ENABLED_FLAG", "SYSTEM")
 				.orElseThrow(() -> new BusinessException(ResponseCode.INVALID_SYSTEM_CODE_ID, HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(id, this.getClass().getName(), new Object() {
+		}
+				.getClass()
+				.getEnclosingMethod()
+				.getName(), "")) {
+			return;
+		}
+		addressRepository.delete(address);
 		if(switchSystemCode.getCodeSuffix().equals("1")) {
 			this.switchEntityAddressService.deleteEntityAddress(address.getEntitiesObject().getEntityId());
 		}

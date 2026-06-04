@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import com.mdsl.exceptionHandling.BusinessException;
 import com.mdsl.model.dto.request.ChangeStatusRequestDto;
 import com.mdsl.model.dto.request.DefaultTransactionIdRequestDto;
+import com.mdsl.model.dto.request.DeleteDefaultTransactionIdRequestDto;
+import com.mdsl.model.dto.request.SaveOrUpdateDefaultTransactionIdRequestDto;
 import com.mdsl.model.dto.response.DefaultTransactionIdResponseDto;
 import com.mdsl.service.DefaultTransactionIdService;
 import com.mdsl.utils.ResponseCode;
@@ -39,7 +41,10 @@ public class DefaultTransactionIdController {
 		Validations.validate(bindingResult);
 		try {
 			return ResponseEntity.ok(defaultTransactionIdService.saveOrUpdateDefaultTransactionId(
-					defaultTransactionIdRequestDto, httpServletRequest.getHeader("instId")));
+					SaveOrUpdateDefaultTransactionIdRequestDto.builder()
+							.defaultTransactionIdRequestDto(defaultTransactionIdRequestDto)
+							.instId(httpServletRequest.getHeader("instId"))
+							.build()));
 		} catch (BusinessException e) {
 		    throw new BusinessException (e.getMessage(), e.getHttpStatus());
 		} catch (Exception e) {
@@ -77,7 +82,10 @@ public class DefaultTransactionIdController {
 	public ResponseEntity<String> deleteDefaultTransactionId(
 			@PathVariable("defaulttransactionid") String defaultTransactionId,HttpServletRequest httpServletRequest) {
 		try {
-			defaultTransactionIdService.deleteDefaultTransactionId(defaultTransactionId,httpServletRequest.getHeader("instId"));
+			defaultTransactionIdService.deleteDefaultTransactionId(DeleteDefaultTransactionIdRequestDto.builder()
+					.defaultTransactionId(defaultTransactionId)
+					.instId(httpServletRequest.getHeader("instId"))
+					.build());
 			String message = "An item is deleted with id : " + defaultTransactionId;
 			return ResponseEntity.ok(message);
 		} catch (BusinessException e) {
@@ -104,7 +112,8 @@ public class DefaultTransactionIdController {
 	@PostMapping("/status-change")
 	public ResponseEntity<String> changeStatus(@Valid @RequestBody ChangeStatusRequestDto changeStatusRequestDto,BindingResult bindingResult, HttpServletRequest request) {
 		Validations.validate(bindingResult);
-		return ResponseEntity.ok(defaultTransactionIdService.changeStatus(changeStatusRequestDto,request.getHeader("instId")));
+		changeStatusRequestDto.setInstId(request.getHeader("instId"));
+		return ResponseEntity.ok(defaultTransactionIdService.changeStatus(changeStatusRequestDto));
 	}
 
 	@GetMapping("get-all/{institutionId}")

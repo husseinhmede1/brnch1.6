@@ -13,6 +13,7 @@ import com.mdsl.model.dto.response.InstitutionTypeResponseDto;
 import com.mdsl.model.entity.InstitutionType;
 import com.mdsl.model.mapper.InstitutionTypeMapper;
 import com.mdsl.repository.InstitutionTypeRepository;
+import com.mdsl.utils.MakerCheckerEngine;
 import com.mdsl.utils.ResponseCode;
 
 @Service
@@ -22,6 +23,8 @@ public class InstitutionTypeService {
 	private InstitutionTypeRepository institutionTypeRepository;
 	@Autowired
 	private InstitutionTypeMapper institutionTypeMapper;
+	@Autowired
+	private MakerCheckerEngine makerCheckerEngine;
 
 	public List<InstitutionTypeResponseDto> getAllInstitutuionType() {
 		List<InstitutionType> allInstitutionType = institutionTypeRepository.findAll();
@@ -35,6 +38,9 @@ public class InstitutionTypeService {
 
 	public InstitutionTypeResponseDto saveOrUpdateInstitutionType(InstitutionTypeRequestDto institutionTypeRequestDto) {
 		InstitutionType institutionType = null;
+		if (makerCheckerEngine.processIfRequired(institutionTypeRequestDto, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		if (institutionTypeRequestDto.getInstitutionTypeId() != 0) {
 			institutionType = institutionTypeRepository.findById(institutionTypeRequestDto.getInstitutionTypeId())
 					.orElseThrow(() -> new BusinessException(ResponseCode.INT_INSTITUTION_TYPE_NOT_FOUND,
@@ -53,6 +59,9 @@ public class InstitutionTypeService {
 		institutionTypeRepository.findById(Id)
 		.orElseThrow(() -> new BusinessException(ResponseCode.INT_INSTITUTION_TYPE_NOT_FOUND,
 				HttpStatus.NOT_FOUND));
+		if (makerCheckerEngine.processIfRequired(Id, this.getClass().getName(), new Object() {}.getClass().getEnclosingMethod().getName(), "")) {
+			return null;
+		}
 		institutionTypeRepository.deleteById(Id);
 		return "Institution type Deleted Successfully";
 	}

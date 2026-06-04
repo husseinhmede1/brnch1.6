@@ -1,6 +1,6 @@
 package com.mdsl.controller;
 
-import com.mdsl.model.dto.response.ModuleActivityResponseDto;
+import com.mdsl.model.dto.response.ActivityPermissionDto;
 import com.mdsl.service.CommonService;
 import com.mdsl.service.ModuleService;
 import io.swagger.annotations.Api;
@@ -26,8 +26,10 @@ public class ModuleController {
     private final CommonService commonService;
 
     @GetMapping("/user")
-    @ApiOperation(value = "Get all Module Activities by User", response = ModuleActivityResponseDto.class)
-    public ResponseEntity<List<ModuleActivityResponseDto>> getModulesActivitiesByUser(HttpServletRequest request) {
+    @ApiOperation(value = "Get all activity permissions for the logged-in user",
+                  response = ActivityPermissionDto.class)
+    public ResponseEntity<List<ActivityPermissionDto>> getModulesActivitiesByUser(
+            HttpServletRequest request) {
         return ResponseEntity.ok(moduleService.getModulesActivitiesByUser(
                 Integer.parseInt(request.getHeader("instId")),
                 commonService.getLoggedInUser().getId()

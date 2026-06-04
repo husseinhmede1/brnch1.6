@@ -27,7 +27,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor 
 @NoArgsConstructor 
-@JsonIgnoreProperties({"parentActivity", "createdBy", "updatedBy"})
+@JsonIgnoreProperties({"createdBy", "updatedBy"})
 @Entity(name="MD_CFG_ACTIVITY")
 public class Activity {
 
@@ -42,10 +42,6 @@ public class Activity {
 
 	@Column(name = "ACTIVITY_DESC")
 	private String activityDesc;
-
-	@ManyToOne
-	@JoinColumn(name = "PARENT_ACTIVITY_ID")
-	private Activity parentActivity;
 
 	@Column(name = "IS_MENU")
 	private char isMenu;

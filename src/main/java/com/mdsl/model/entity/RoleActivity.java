@@ -57,6 +57,9 @@ public class RoleActivity {
 	@Column(name = "ACCESS_DELETE")
 	private String accessDelete;
 
+	@Column(name = "ACCESS_CHECKER")
+	private String accessChecker;
+
 	@Column(name = "CREATED_DATE", columnDefinition = "DATE DEFAULT CURRENT_TIMESTAMP")
 	private Timestamp createdDate;
 

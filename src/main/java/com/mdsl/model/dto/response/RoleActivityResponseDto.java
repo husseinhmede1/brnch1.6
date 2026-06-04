@@ -21,5 +21,6 @@ public class RoleActivityResponseDto {
 	private String accessAdd;
 	private String accessUpdate;
 	private String accessDelete;
+	private String accessChecker;
 	private ActivityResponseDto activity;
 }

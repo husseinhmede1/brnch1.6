@@ -44,4 +44,9 @@ public class RoleActivityRequestDto {
 	@Size(min=1, max=1, message = ResponseCode.ROL_INVALID_ACCESS_DELETE)
 	@Pattern(regexp="^[01]$", message=ResponseCode.ROL_INVALID_ACCESS_DELETE)
 	private String accessDelete;
+
+	@NotEmpty(message=ResponseCode.ROL_INVALID_ACCESS_VIEW)
+	@Size(min=1, max=1, message = ResponseCode.ROL_INVALID_ACCESS_VIEW)
+	@Pattern(regexp="^[01]$", message=ResponseCode.ROL_INVALID_ACCESS_VIEW)
+	private String accessChecker;
 }
